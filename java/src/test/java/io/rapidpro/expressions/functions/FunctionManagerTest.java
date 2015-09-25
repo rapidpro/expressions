@@ -8,8 +8,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -25,7 +27,7 @@ public class FunctionManagerTest {
     }
 
     @Test
-    public void test_invokeFunction() {
+    public void invokeFunction() {
         FunctionManager manager = new FunctionManager();
         manager.addLibrary(TestFunctions.class);
 
@@ -37,10 +39,20 @@ public class FunctionManagerTest {
     }
 
     @Test(expected = EvaluationError.class)
-    public void test_invokeFunction_nonPublic() {
+    public void invokeFunction_nonPublic() {
         FunctionManager manager = new FunctionManager();
         manager.addLibrary(TestFunctions.class);
         manager.invokeFunction(m_context, "zed", new ArrayList<Object>(Arrays.asList(12)));
+    }
+
+    @Test
+    public void buildListing() {
+        FunctionManager manager = new FunctionManager();
+        manager.addLibrary(TestFunctions.class);
+        List<FunctionManager.FunctionDescriptor> listing = manager.buildListing();
+
+        assertThat(listing.get(0).getName(), is("BAR"));
+        assertThat(listing.get(0).getDescription(), is(nullValue()));  // not yet supported
     }
 
     public static class TestFunctions {

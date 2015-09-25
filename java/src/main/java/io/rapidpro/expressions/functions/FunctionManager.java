@@ -12,10 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Manages the loaded function libraries
@@ -123,6 +120,47 @@ public class FunctionManager {
                 prettyArgs.add(pretty);
             }
             throw new EvaluationError("Error calling function " + name + " with arguments " + StringUtils.join(prettyArgs, ", "), e);
+        }
+    }
+
+    /**
+     * Builds a listing of all functions sorted A-Z, with their names and descriptions
+     * @return the function listing
+     */
+    public List<FunctionDescriptor> buildListing() {
+        List<FunctionDescriptor> listing = new ArrayList<>();
+
+        for (Map.Entry<String, Method> entry : m_functions.entrySet()) {
+            // TODO get description from annotation? Javadoc plugin task?
+            FunctionDescriptor descriptor = new FunctionDescriptor(entry.getKey().toUpperCase(), null);
+            listing.add(descriptor);
+        }
+
+        Collections.sort(listing, new Comparator<FunctionDescriptor>() {
+            @Override
+            public int compare(FunctionDescriptor f1, FunctionDescriptor f2) {
+                return f1.m_name.compareTo(f2.m_name);
+            }
+        });
+
+        return listing;
+    }
+
+    public static class FunctionDescriptor {
+        protected String m_name;
+        protected String m_description;
+
+        public FunctionDescriptor(String name, String description) {
+            m_name = name;
+            m_description = description;
+        }
+
+        public String getName() {
+            return m_name;
+        }
+
+        public String getDescription() {
+            return m_description;
         }
     }
 }
