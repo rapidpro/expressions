@@ -41,7 +41,13 @@ class DateParserTests(unittest.TestCase):
             ("1 Feb 34 02:55 PM", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
             ("1. 2 '34 02:55pm", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
             ("1st february 2034 14.55", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1er février 2034 1455h", datetime(2034, 2, 1, 14, 55, 0, 0, tz))
+            ("1er février 2034 1455h", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
+
+            # these results differ from Java version because python datetime only support microsecond accuracy
+            ("2034-02-01T14:55:41.060422", datetime(2034, 2, 1, 14, 55, 41, 60422, tz)),
+            ("2034-02-01T14:55:41.060Z", datetime(2034, 2, 1, 14, 55, 41, 60000, pytz.UTC)),
+            ("2034-02-01T14:55:41.060422Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC)),
+            ("2034-02-01T14:55:41.060422123Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC))
         )
         for test in tests:
             self.assertEqual(parser.auto(test[0]), test[1], "Parser error for %s" % test[0])

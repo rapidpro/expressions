@@ -46,7 +46,9 @@ public class DateParser {
         MINUTE,
         HOUR_AND_MINUTE, // e.g. 1400
         SECOND,
-        AM_PM
+        NANO,
+        AM_PM,
+        OFFSET
     }
 
     protected static final Component[][] DATE_SEQUENCES_DAY_FIRST = new Component[][] {
@@ -73,6 +75,8 @@ public class DateParser {
             { Component.HOUR, Component.MINUTE, Component.AM_PM },
             { Component.HOUR, Component.MINUTE, Component.SECOND },
             { Component.HOUR, Component.MINUTE, Component.SECOND, Component.AM_PM },
+            { Component.HOUR, Component.MINUTE, Component.SECOND, Component.NANO },
+            { Component.HOUR, Component.MINUTE, Component.SECOND, Component.NANO, Component.OFFSET},
     };
 
     protected final LocalDate m_now;
@@ -84,7 +88,7 @@ public class DateParser {
     /**
      * Creates a new date parser
      * @param now the now which parsing happens relative to
-     * @param timezone the timezone in which times are interpreted
+     * @param timezone the timezone in which times are interpreted if input doesn't include an offset
      * @param dateStyle whether dates are usually entered day first or month first
      */
     public DateParser(LocalDate now, ZoneId timezone, DateStyle dateStyle) {
@@ -120,7 +124,7 @@ public class DateParser {
         }
 
         // split the text into numerical and text tokens
-        Pattern pattern = Pattern.compile("([0-9]+|\\w+)", Pattern.UNICODE_CHARACTER_CLASS);
+        Pattern pattern = Pattern.compile("([0-9]+|[^\\W\\d]+)", Pattern.UNICODE_CHARACTER_CLASS);
         Matcher matcher = pattern.matcher(text);
         List<String> tokens = new ArrayList<>();
         while (matcher.find()) {
@@ -240,6 +244,17 @@ public class DateParser {
                 if (asInt >= 0 && asInt <= 59) {
                     possibilities.put(Component.SECOND, asInt);
                 }
+                if (token.length() == 3 || token.length() == 6 || token.length() == 9) {
+                    int nano = 0;
+                    if (token.length() == 3) {  // millisecond precision
+                        nano = asInt * 1_000_000;
+                    } else if (token.length() == 6) {  // microsecond precision
+                        nano = asInt * 1_000;
+                    } else if (token.length() == 9) {
+                        nano = asInt;
+                    }
+                    possibilities.put(Component.NANO, nano);
+                }
                 if (token.length() == 4) {
                     int hour = asInt / 100;
                     int minute = asInt - (hour * 100);
@@ -264,6 +279,11 @@ public class DateParser {
                 boolean isPmMarker = token.equals("pm");
                 if (isAmMarker || isPmMarker) {
                     possibilities.put(Component.AM_PM, isAmMarker ? AM : PM);
+                }
+
+                // offset parsing is limited to Z meaning UTC for now
+                if (token.equals("z")) {
+                    possibilities.put(Component.OFFSET, 0);
                 }
             }
         }
@@ -293,17 +313,19 @@ public class DateParser {
         }
 
         if ((values.containsKey(Component.HOUR) && values.containsKey(Component.MINUTE)) || values.containsKey(Component.HOUR_AND_MINUTE)) {
-            int hour, minute, second;
+            int hour, minute, second, nano;
             if (values.containsKey(Component.HOUR_AND_MINUTE)) {
                 int combined = values.get(Component.HOUR_AND_MINUTE);
                 hour = combined / 100;
                 minute = combined - (hour * 100);
                 second = 0;
+                nano = 0;
             }
             else {
                 hour = values.get(Component.HOUR);
                 minute = values.get(Component.MINUTE);
                 second = ExpressionUtils.getOrDefault(values, Component.SECOND, 0);
+                nano = ExpressionUtils.getOrDefault(values, Component.NANO, 0);
 
                 if (hour <= 12 && ExpressionUtils.getOrDefault(values, Component.AM_PM, AM) == PM) {
                     hour += 12;
@@ -311,11 +333,15 @@ public class DateParser {
             }
 
             try {
-                time = LocalTime.of(hour, minute, second);
+                time = LocalTime.of(hour, minute, second, nano);
             }
             catch (DateTimeException ex) {
                 return null;  // not a valid time
             }
+        }
+
+        if (values.containsKey(Component.OFFSET)) {
+            timezone = ZoneOffset.ofTotalSeconds(values.get(Component.OFFSET));
         }
 
         if (date != null && time != null) {

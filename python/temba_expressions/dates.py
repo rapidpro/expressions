@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 import pkg_resources
+import pytz
 import regex
 
 from collections import OrderedDict
@@ -21,7 +22,9 @@ class Component(Enum):
     MINUTE = 4
     HOUR_AND_MINUTE = 5  # e.g. 1400
     SECOND = 6
-    AM_PM = 7
+    NANO = 7
+    AM_PM = 8
+    OFFSET = 9
 
 
 class Mode(Enum):
@@ -63,13 +66,15 @@ class DateParser(object):
         [Component.HOUR, Component.MINUTE, Component.AM_PM],
         [Component.HOUR, Component.MINUTE, Component.SECOND],
         [Component.HOUR, Component.MINUTE, Component.SECOND, Component.AM_PM],
+        [Component.HOUR, Component.MINUTE, Component.SECOND, Component.NANO],
+        [Component.HOUR, Component.MINUTE, Component.SECOND, Component.NANO, Component.OFFSET],
     ]
 
     def __init__(self, now, timezone, date_style):
         """
         Creates a new date parser
         :param now: the now which parsing happens relative to
-        :param timezone: the timezone in which times are interpreted
+        :param timezone: the timezone in which times are interpreted if input doesn't include an offset
         :param date_style: whether dates are usually entered day first or month first
         """
         self._now = now
@@ -100,7 +105,7 @@ class DateParser(object):
             return None
 
         # split the text into numerical and text tokens
-        tokens = regex.findall(r'([0-9]+|\w+)', text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)
+        tokens = regex.findall(r'([0-9]+|[^\W\d]+)', text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)
 
         # get the possibilities for each token
         token_possibilities = []
@@ -193,6 +198,15 @@ class DateParser(object):
                     possibilities[Component.MINUTE] = as_int
                 if 0 <= as_int <= 59:
                     possibilities[Component.SECOND] = as_int
+                if len(token) == 3 or len(token) == 6 or len(token) == 9:
+                    nano = 0
+                    if len(token) == 3:  # millisecond precision
+                        nano = as_int * 1000000
+                    elif len(token) == 6:  # microsecond precision
+                        nano = as_int * 1000
+                    elif len(token) == 9:
+                        nano = as_int
+                    possibilities[Component.NANO] = nano
                 if len(token) == 4:
                     hour = as_int / 100
                     minute = as_int - (hour * 100)
@@ -212,6 +226,10 @@ class DateParser(object):
                 is_pm_marker = token == "pm"
                 if is_am_marker or is_pm_marker:
                     possibilities[Component.AM_PM] = cls.AM if is_am_marker else cls.PM
+
+                # offset parsing is limited to Z meaning UTC for now
+                if token == "z":
+                    possibilities[Component.OFFSET] = 0
 
         return possibilities
 
@@ -242,18 +260,23 @@ class DateParser(object):
                 hour = combined / 100
                 minute = combined - (hour * 100)
                 second = 0
+                nano = 0
             else:
                 hour = values[Component.HOUR]
                 minute = values[Component.MINUTE]
                 second = values.get(Component.SECOND, 0)
+                nano = values.get(Component.NANO, 0)
 
                 if hour <= 12 and values.get(Component.AM_PM, cls.AM) == cls.PM:
                     hour += 12
 
             try:
-                time = datetime.time(hour, minute, second)
+                time = datetime.time(hour, minute, second, microsecond=(nano / 1000))
             except ValueError:
                 return None  # not a valid time
+
+        if Component.OFFSET in values:
+            timezone = pytz.FixedOffset(values[Component.OFFSET] / 60)
 
         if date is not None and time is not None:
             return datetime.datetime.combine(date, time).replace(tzinfo=timezone)

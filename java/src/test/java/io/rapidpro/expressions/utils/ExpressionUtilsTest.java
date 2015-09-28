@@ -5,9 +5,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static io.rapidpro.expressions.utils.ExpressionUtils.slice;
-import static io.rapidpro.expressions.utils.ExpressionUtils.tokenize;
-import static io.rapidpro.expressions.utils.ExpressionUtils.urlquote;
+import static io.rapidpro.expressions.utils.ExpressionUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
