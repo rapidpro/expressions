@@ -4,6 +4,7 @@ python:
 install:
 - pip install -r python/requirements/tests.txt --upgrade
 - sudo apt-get update && sudo apt-get install maven2 -y
+- npm install nodemon -g
 script:
 - cd python && nosetests -s && cd ..
 - cd java && mvn clean test && cd ..
