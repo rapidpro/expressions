@@ -15,5 +15,5 @@ Hi @contact, you entered @flow.age for age. Is this correct?
 This is used to build more complex expressions using similar syntax to Excel formulae, e.g.
 
 ```
-Hi @(PROPER(contact)), you are @(YEAR(NOW()) - @flow.year_born) years old. Is this correct?
+Hi @(PROPER(contact)), you are @(YEAR(NOW()) - flow.year_born) years old. Is this correct?
 ```
