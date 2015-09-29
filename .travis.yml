@@ -1,9 +1,13 @@
 language: python
 python:
-    - '2.7'
+- '2.7'
 install:
-    - pip install -r python/requirements/tests.txt --upgrade
-    - sudo apt-get update && sudo apt-get install maven2 -y
+- pip install -r python/requirements/tests.txt --upgrade
+- sudo apt-get update && sudo apt-get install maven2 -y
 script:
-    - cd python && nosetests -s && cd ..
-    - cd java && mvn clean test && cd ..
+- cd python && nosetests -s && cd ..
+- cd java && mvn clean test && cd ..
+- cd js && ./node_modules/karma/bin/karma start && cd ..
+notifications:
+  slack:
+    secure: IONCkSZ1/jFNdg+wVpIuYoL/eKYF0psr8Mx0vsvyHmhzRgDjZ/Ai6E/n0n4GNqKNvq1m9dfHQH0wgkF94veG8TPl94bTf9eR52MQfWsdbTRx2OaDvrQyHgNfFhMXEyp1TDAP2c0YfDgwc34O5LAgEgKrpQX0fEYXBaxJh6QytQ6spTcuPChAPUXz+ipuZve+R253CAW/BJIPqOuqB8o8aDfZDWuULqx+BQF1PCTDosmu/D7wOYH97UlwBdchPTH+8+1v+rM9Hoyh4Ymb4NMNt7Ir8t13MKp2UnaLStD8v9JsfMY/LecHGOOY84OYPWIhrqTrd/R80GlSEqSyeebsWcdAFDcvduF+UkEuUMMQeaA+usyR5eOsfHhecNbclI1NPFO0ZecmUicCn389T7bsxx6cShXqJ3dEESqJsWumgnJHLxZ5KIrk9Pe7IGzn7jpvQcbFbbD8JKkESVbzEW7Rps1DIxBn1MT1sJ6kFiISf01rPUiKCHPxGjBreE14IDdkxJXNB7Wjsv0q8gXnkamJHI4y6K7+JSIKGYGVkfWxVqWScoKnUDO9n1DzRHk6TJPtcZqHOjbwjbKm8nWf9vzmvWiZKp65wOOnIKLhpTHCp/avMbFoqPnw4xRq0c1ty9D19uRm/NGGHxRpANzcMx885EQFAAQOtXeTNqCbkrHUv08=
