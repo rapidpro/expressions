@@ -59,3 +59,5 @@ target/
 .DS_Store
 .idea/
 *.iml
+
+js/node_modules
