@@ -4,6 +4,7 @@ import operator
 import regex
 
 from temba_expressions import conversions
+from temba_expressions.utils import tokenize
 
 
 def field(ctx, text, index, delimiter=' '):
@@ -140,6 +141,8 @@ def __get_words(text, by_spaces):
     :param text: the text to split
     :param by_spaces: whether words should be split only by spaces or by punctuation like '-', '.' etc
     """
-    rexp = r'\s+' if by_spaces else r'\W+'
-    splits = regex.split(rexp, text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)
-    return [split for split in splits if split]   # return only non-empty
+    if by_spaces:
+        splits = regex.split(r'\s+', text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)
+        return [split for split in splits if split]   # return only non-empty
+    else:
+        return tokenize(text)

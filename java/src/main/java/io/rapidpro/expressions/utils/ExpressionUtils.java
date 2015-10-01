@@ -90,14 +90,11 @@ public class ExpressionUtils {
     /**
      * Tokenizes a string by splitting on non-word characters. This should be equivalent to splitting on \W+ in Python.
      * The meaning of \W is different in Android, Java 7, Java 8 hence the non-use of regular expressions.
-     * @param str the input string
+     * @param text the input text
      * @return the string tokens
      */
-    public static String[] tokenize(String str) {
-        if (str == null) {
-            return null;
-        }
-        final int len = str.length();
+    public static String[] tokenize(String text) {
+        final int len = text.length();
         if (len == 0) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
@@ -105,10 +102,10 @@ public class ExpressionUtils {
         int i = 0, start = 0;
         boolean match = false;
         while (i < len) {
-            int ch = str.codePointAt(i);
+            int ch = text.codePointAt(i);
             if (!(Character.isDigit(ch) || ch == '_' || Character.isAlphabetic(ch))) {
                 if (match) {
-                    list.add(str.substring(start, i));
+                    list.add(text.substring(start, i));
                     match = false;
                 }
                 start = ++i;
@@ -118,7 +115,7 @@ public class ExpressionUtils {
             i++;
         }
         if (match) {
-            list.add(str.substring(start, i));
+            list.add(text.substring(start, i));
         }
         return list.toArray(new String[list.size()]);
     }

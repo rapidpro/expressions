@@ -14,7 +14,7 @@ from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
 from .evaluator import Evaluator, EvaluationContext, EvaluationStrategy, DEFAULT_FUNCTION_MANAGER
 from .functions import excel, custom
-from .utils import urlquote, decimal_pow
+from .utils import urlquote, decimal_pow, tokenize
 
 
 class DateParserTests(unittest.TestCase):
@@ -515,6 +515,11 @@ class UtilsTests(unittest.TestCase):
         self.assertEqual(decimal_pow(Decimal(4), Decimal(2)), Decimal(16))
         self.assertEqual(decimal_pow(Decimal(4), Decimal('0.5')), Decimal(2))
         self.assertEqual(decimal_pow(Decimal(2), Decimal(-2)), Decimal('0.25'))
+
+    def test_tokenize(self):
+        self.assertEqual(tokenize("this is a sentence"), ["this", "is", "a", "sentence"])
+        self.assertEqual(tokenize("  hey  \t@ there  "), ["hey", "there"])
+        self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])
 
 
 class TemplateTests(unittest.TestCase):
