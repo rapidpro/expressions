@@ -22,6 +22,7 @@ public class DateParserTest {
                 { "01 02 34", LocalDate.of(2034, 2, 1) },
                 { "1 Feb 34", LocalDate.of(2034, 2, 1) },
                 { "1. 2 '34", LocalDate.of(2034, 2, 1) },
+                { "my birthday is on 01/02/34", LocalDate.of(2034, 2, 1) },
                 { "1st february 2034", LocalDate.of(2034, 2, 1) },
                 { "1er février 2034", LocalDate.of(2034, 2, 1) },
                 { "2/25-70", LocalDate.of(1970, 2, 25) }, // date style should be ignored when it doesn't make sense

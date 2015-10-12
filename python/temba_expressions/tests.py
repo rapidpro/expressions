@@ -29,22 +29,23 @@ class DateParserTests(unittest.TestCase):
             ("01 02 34", date(2034, 2, 1)),
             ("1 Feb 34", date(2034, 2, 1)),
             ("1. 2 '34", date(2034, 2, 1)),
+            ("my birthday is on 01/02/34", date(2034, 2, 1)),
             ("1st february 2034", date(2034, 2, 1)),
             ("1er février 2034", date(2034, 2, 1)),
             ("2/25-70", date(1970, 2, 25)),  # date style should be ignored when it doesn't make sense
             ("1 feb", date(2015, 2, 1)),  # year can be omitted
             ("Feb 1st", date(2015, 2, 1)),
             ("1 feb 9999999", date(2015, 2, 1)),  # ignore invalid values
-            ("1/2/34 14:55", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1-2-34 2:55PM", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("01 02 34 1455", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1 Feb 34 02:55 PM", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1. 2 '34 02:55pm", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1st february 2034 14.55", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
-            ("1er février 2034 1455h", datetime(2034, 2, 1, 14, 55, 0, 0, tz)),
+            ("1/2/34 14:55", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("1-2-34 2:55PM", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("01 02 34 1455", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("1 Feb 34 02:55 PM", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("1. 2 '34 02:55pm", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("1st february 2034 14.55", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
+            ("1er février 2034 1455h", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
 
             # these results differ from Java version because python datetime only support microsecond accuracy
-            ("2034-02-01T14:55:41.060422", datetime(2034, 2, 1, 14, 55, 41, 60422, tz)),
+            ("2034-02-01T14:55:41.060422", tz.localize(datetime(2034, 2, 1, 14, 55, 41, 60422))),
             ("2034-02-01T14:55:41.060Z", datetime(2034, 2, 1, 14, 55, 41, 60000, pytz.UTC)),
             ("2034-02-01T14:55:41.060422Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC)),
             ("2034-02-01T14:55:41.060422123Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC))
@@ -176,11 +177,13 @@ class ConversionsTests(unittest.TestCase):
         self.assertEqual(conversions.to_date("14/8/15", self.context), date(2015, 8, 14))  # ignored because doesn't make sense
 
     def test_to_datetime(self):
-        self.assertEqual(conversions.to_datetime("14th Aug 2015 09:12", self.context), datetime(2015, 8, 14, 9, 12, 0, 0, pytz.timezone("Africa/Kigali")))
+        tz = pytz.timezone("Africa/Kigali")
 
-        self.assertEqual(conversions.to_datetime(date(2015, 8, 14), self.context), datetime(2015, 8, 14, 0, 0, 0, 0, pytz.timezone("Africa/Kigali")))
+        self.assertEqual(conversions.to_datetime("14th Aug 2015 09:12", self.context), tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)))
 
-        self.assertEqual(conversions.to_datetime(datetime(2015, 8, 14, 9, 12, 0, 0, pytz.timezone("Africa/Kigali")), self.context), datetime(2015, 8, 14, 9, 12, 0, 0, pytz.timezone("Africa/Kigali")))
+        self.assertEqual(conversions.to_datetime(date(2015, 8, 14), self.context), tz.localize(datetime(2015, 8, 14, 0, 0, 0, 0)))
+
+        self.assertEqual(conversions.to_datetime(tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)), self.context), tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)))
 
     def test_to_time(self):
         self.assertEqual(conversions.to_time("9:12", self.context), time(9, 12, 0))
@@ -293,7 +296,8 @@ class FunctionsTests(unittest.TestCase):
     
     def test_excel(self):
         variables = {'date': {'now': '01-02-2014 03:55', 'today': '01-02-2014'}}
-        context = EvaluationContext(variables, pytz.timezone("Africa/Kigali"), DateStyle.DAY_FIRST)
+        tz = pytz.timezone("Africa/Kigali")
+        context = EvaluationContext(variables, tz, DateStyle.DAY_FIRST)
 
         # text functions
         self.assertEqual(excel.char(context, 9), '\t')
@@ -376,7 +380,7 @@ class FunctionsTests(unittest.TestCase):
 
         self.assertEqual(excel.minute(context, '01-02-2014 03:55'), 55)
 
-        self.assertEqual(excel.now(context), datetime(2014, 2, 1, 3, 55, 0, 0, pytz.timezone("Africa/Kigali")))
+        self.assertEqual(excel.now(context), tz.localize(datetime(2014, 2, 1, 3, 55, 0, 0)))
 
         self.assertEqual(excel.second(context, '01-02-2014 03:55:30'), 30)
 

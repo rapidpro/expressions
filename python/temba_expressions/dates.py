@@ -279,7 +279,7 @@ class DateParser(object):
             timezone = pytz.FixedOffset(values[Component.OFFSET] / 60)
 
         if date is not None and time is not None:
-            return datetime.datetime.combine(date, time).replace(tzinfo=timezone)
+            return timezone.localize(datetime.datetime.combine(date, time))
         elif date is not None:
             return date
         elif time is not None:

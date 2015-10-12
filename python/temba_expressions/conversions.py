@@ -118,7 +118,7 @@ def to_datetime(value, ctx):
         if temporal is not None:
             return to_datetime(temporal, ctx)
     elif type(value) == datetime.date:
-        return datetime.datetime.combine(value, datetime.time(0, 0)).replace(tzinfo=ctx.timezone)
+        return ctx.timezone.localize(datetime.datetime.combine(value, datetime.time(0, 0)))
     elif isinstance(value, datetime.datetime):
         return value.astimezone(ctx.timezone)
 
