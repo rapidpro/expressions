@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Flexible date parser for human written dates
  */
 public class DateParser {
-
-    protected static final DateLexer LEXER = new DateLexer();
 
     protected static final Map<String, Integer> MONTHS_BY_ALIAS;
     static {
@@ -103,16 +103,6 @@ public class DateParser {
      * @return the parsed date or datetime
      */
     public Temporal auto(String text) {
-        Result result = parse(text, Mode.AUTO);
-        return result != null ? result.getValue() : null;
-    }
-
-    /**
-     * Returns a date or datetime depending on what information is available, along with location information
-     * @param text the text to parse
-     * @return the result including the date or datetime and location
-     */
-    public Result autoWithLocation(String text) {
         return parse(text, Mode.AUTO);
     }
 
@@ -122,37 +112,31 @@ public class DateParser {
      * @return the parsed time
      */
     public OffsetTime time(String text) {
-        Result result = parse(text, Mode.TIME);
-        return result != null ? (OffsetTime) result.getValue() : null;
+        return (OffsetTime) parse(text, Mode.TIME);
     }
 
     /**
      * Returns a date, datetime or time depending on what information is available
      */
-    protected Result parse(String text, Mode mode) {
+    protected Temporal parse(String text, Mode mode) {
         if (StringUtils.isBlank(text)) {
             return null;
         }
 
-        // split the text into numerical and alphabetical tokens
-        List<DateLexer.Token> tokens = LEXER.tokenize(text);
-
-        int startPos = -1, endPos = -1;
+        // split the text into numerical and text tokens
+        Pattern pattern = Pattern.compile("([0-9]+|[^\\W\\d]+)", Pattern.UNICODE_CHARACTER_CLASS);
+        Matcher matcher = pattern.matcher(text);
+        List<String> tokens = new ArrayList<>();
+        while (matcher.find()) {
+            tokens.add(matcher.group(0));
+        }
 
         // get the possibilities for each token
         List<Map<Component, Integer>> tokenPossibilities = new ArrayList<>();
-        for (DateLexer.Token token : tokens) {
+        for (String token : tokens) {
             Map<Component, Integer> possibilities = getTokenPossibilities(token, mode);
             if (possibilities.size() > 0) {
                 tokenPossibilities.add(possibilities);
-
-                // keep track of min start and max end positions of tokens with possibilities
-                if (startPos < 0) {
-                    startPos = token.getStart();
-                }
-                if (token.getEnd() > endPos) {
-                    endPos = token.getEnd();
-                }
             }
         }
 
@@ -173,10 +157,10 @@ public class DateParser {
                 }
             }
 
-            // try to form a valid date or time and return it if successful
+            // try to make a valid result from this and return if successful
             Temporal obj = makeResult(match, m_now, m_timezone);
             if (obj != null) {
-                return new Result(obj, startPos, endPos);
+                return obj;
             }
         }
 
@@ -228,15 +212,14 @@ public class DateParser {
      * @param token the token to classify
      * @return the map of possible types and values if token was of that type
      */
-    protected static Map<Component, Integer> getTokenPossibilities(DateLexer.Token token, Mode mode) {
+    protected static Map<Component, Integer> getTokenPossibilities(String token, Mode mode) {
+        token = token.toLowerCase().trim();
         Map<Component, Integer> possibilities = new HashMap<>();
-        String text = token.getText().toLowerCase();
-
-        if (token.getType() == DateLexer.Token.Type.NUMERIC) {
-            int asInt = Integer.parseInt(token.getText());
+        try {
+            int asInt = Integer.parseInt(token);
 
             if (mode != Mode.TIME) {
-                if (asInt >= 1 && asInt <= 9999 && (text.length() == 2 || text.length() == 4)) {
+                if (asInt >= 1 && asInt <= 9999 && (token.length() == 2 || token.length() == 4)) {
                     possibilities.put(Component.YEAR, asInt);
                 }
                 if (asInt >= 1 && asInt <= 12) {
@@ -257,18 +240,18 @@ public class DateParser {
                 if (asInt >= 0 && asInt <= 59) {
                     possibilities.put(Component.SECOND, asInt);
                 }
-                if (text.length() == 3 || text.length() == 6 || text.length() == 9) {
+                if (token.length() == 3 || token.length() == 6 || token.length() == 9) {
                     int nano = 0;
-                    if (text.length() == 3) {  // millisecond precision
+                    if (token.length() == 3) {  // millisecond precision
                         nano = asInt * 1_000_000;
-                    } else if (text.length() == 6) {  // microsecond precision
+                    } else if (token.length() == 6) {  // microsecond precision
                         nano = asInt * 1_000;
-                    } else if (text.length() == 9) {
+                    } else if (token.length() == 9) {
                         nano = asInt;
                     }
                     possibilities.put(Component.NANO, nano);
                 }
-                if (text.length() == 4) {
+                if (token.length() == 4) {
                     int hour = asInt / 100;
                     int minute = asInt - (hour * 100);
                     if (hour >= 1 && hour <= 24 && minute >= 1 && minute <= 59) {
@@ -276,10 +259,11 @@ public class DateParser {
                     }
                 }
             }
-        } else if (token.getType() == DateLexer.Token.Type.ALPHABETIC) {
+        }
+        catch (NumberFormatException ex) {
             if (mode != Mode.TIME) {
                 // could it be a month alias?
-                Integer month = MONTHS_BY_ALIAS.get(text);
+                Integer month = MONTHS_BY_ALIAS.get(token);
                 if (month != null) {
                     possibilities.put(Component.MONTH, month);
                 }
@@ -287,14 +271,14 @@ public class DateParser {
 
             if (mode != Mode.DATE) {
                 // could it be an AM/PM marker?
-                boolean isAmMarker = text.equals("am");
-                boolean isPmMarker = text.equals("pm");
+                boolean isAmMarker = token.equals("am");
+                boolean isPmMarker = token.equals("pm");
                 if (isAmMarker || isPmMarker) {
                     possibilities.put(Component.AM_PM, isAmMarker ? AM : PM);
                 }
 
                 // offset parsing is limited to Z meaning UTC for now
-                if (text.equals("z")) {
+                if (token.equals("z")) {
                     possibilities.put(Component.OFFSET, 0);
                 }
             }
@@ -403,34 +387,5 @@ public class DateParser {
         }
         reader.close();
         return map;
-    }
-
-    /**
-     * A complete parse result
-     */
-    public static class Result {
-        protected Temporal m_value;
-
-        protected int m_start;
-
-        protected int m_end;
-
-        public Result(Temporal value, int start, int end) {
-            m_value = value;
-            m_start = start;
-            m_end = end;
-        }
-
-        public Temporal getValue() {
-            return m_value;
-        }
-
-        public int getStart() {
-            return m_start;
-        }
-
-        public int getEnd() {
-            return m_end;
-        }
     }
 }

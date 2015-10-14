@@ -12,18 +12,18 @@ import static org.junit.Assert.assertThat;
 public class DateParserTest {
 
     @Test
-    public void autoWithLocation() {
+    public void auto() {
         ZoneId tz = ZoneId.of("Africa/Kigali");
         DateParser parser = new DateParser(LocalDate.of(2015, 8, 12), tz, DateStyle.DAY_FIRST);
 
         Object[][] tests = {
-                { "1/2/34", LocalDate.of(2034, 2, 1), "1/2/34" },
-                { " 1-2-34 ", LocalDate.of(2034, 2, 1), "1-2-34" },
-                { "01 02 34", LocalDate.of(2034, 2, 1), "01 02 34" },
-                { "1 Feb 34", LocalDate.of(2034, 2, 1), "1 Feb 34" },
-                { "1. 2 '34", LocalDate.of(2034, 2, 1), "1. 2 '34" },
-                { "my birthday is on 01/02/34 so it is", LocalDate.of(2034, 2, 1), "01/02/34" },
-                { "it's 1st february 2034", LocalDate.of(2034, 2, 1), "1st february 2034" },
+                { "1/2/34", LocalDate.of(2034, 2, 1) },
+                { "1-2-34", LocalDate.of(2034, 2, 1) },
+                { "01 02 34", LocalDate.of(2034, 2, 1) },
+                { "1 Feb 34", LocalDate.of(2034, 2, 1) },
+                { "1. 2 '34", LocalDate.of(2034, 2, 1) },
+                { "my birthday is on 01/02/34", LocalDate.of(2034, 2, 1) },
+                { "1st february 2034", LocalDate.of(2034, 2, 1) },
                 { "1er février 2034", LocalDate.of(2034, 2, 1) },
                 { "2/25-70", LocalDate.of(1970, 2, 25) }, // date style should be ignored when it doesn't make sense
                 { "1 feb", LocalDate.of(2015, 2, 1) }, // year can be omitted
@@ -32,24 +32,17 @@ public class DateParserTest {
                 { "1/2/34 14:55", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
                 { "1-2-34 2:55PM", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
                 { "01 02 34 1455", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
-                { "it was 1 Feb 34 02:55 PM", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz), "1 Feb 34 02:55 PM" },
+                { "1 Feb 34 02:55 PM", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
                 { "1. 2 '34 02:55pm", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
-                { "1st february 2034 14.55", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
-                { "1er février 2034 1455h", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
-                { "2034-02-01T14:55:41.060422", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, tz) },
-                { "2034-02-01T14:55:41.060Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60000000, ZoneOffset.UTC) },
-                { "2034-02-01T14:55:41.060422Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, ZoneOffset.UTC) },
-                { "2034-02-01T14:55:41.060422123Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422123, ZoneOffset.UTC) }
+                { "1st february 2034 14.55", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz)},
+                {"1er février 2034 1455h", ZonedDateTime.of(2034, 2, 1, 14, 55, 0, 0, tz) },
+                {"2034-02-01T14:55:41.060422", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, tz)},
+                {"2034-02-01T14:55:41.060Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60000000, ZoneOffset.UTC)},
+                {"2034-02-01T14:55:41.060422Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, ZoneOffset.UTC)},
+                {"2034-02-01T14:55:41.060422123Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422123, ZoneOffset.UTC)}
         };
-
         for (Object[] test : tests) {
-            String text = (String) test[0];
-            DateParser.Result result = parser.autoWithLocation(text);
-            assertThat("Parse error for " + test[0], result.getValue(), is(test[1]));
-
-            if (test.length == 3) {
-                assertThat(text.substring(result.getStart(), result.getEnd()), is(test[2]));
-            }
+            assertThat("Parse error for " + test[0], parser.auto((String) test[0]), is(test[1]));
         }
     }
 

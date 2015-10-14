@@ -34,74 +34,10 @@ class Mode(Enum):
     AUTO = 4
 
 
-class DateLexer(object):
-    """
-    Lexer used by DateParser. Tokenizes input into sequences of digits or letters.
-    """
-    class State(Enum):
-        IGNORED = 0
-        NUMERIC_TOKEN = 1
-        ALPHABETIC_TOKEN = 2
-
-    def tokenize(self, text):
-        length = len(text)
-        if length == 0:
-            return []
-
-        state = DateLexer.State.IGNORED
-        current_token_type = None
-        current_token_start = -1
-        tokens = []
-
-        for pos, ch in enumerate(text):
-            prev_state = state
-
-            if ch.isalpha():
-                state = DateLexer.State.ALPHABETIC_TOKEN
-            elif ch.isdigit():
-                state = DateLexer.State.NUMERIC_TOKEN
-            else:
-                state = DateLexer.State.IGNORED
-
-            if prev_state != state:
-                # ending a token
-                if prev_state != DateLexer.State.IGNORED:
-                    tokens.append(DateLexer.Token(current_token_type, text[current_token_start:pos], current_token_start, pos))
-
-                # beginning a new token
-                if state != DateLexer.State.IGNORED:
-                    current_token_type = DateLexer.Token.Type.NUMERIC if state == DateLexer.State.NUMERIC_TOKEN else DateLexer.Token.Type.ALPHABETIC
-                    current_token_start = pos
-
-        if state != DateLexer.State.IGNORED:
-            tokens.append(DateLexer.Token(current_token_type, text[current_token_start:length], current_token_start, length))
-
-        return tokens
-
-    class Token(object):
-        """
-        A lexer token
-        """
-        class Type(Enum):
-            NUMERIC = 1,    # a sequence of digits
-            ALPHABETIC = 2  # a sequence of letters
-
-        def __init__(self, _type, text, start, end):
-            self.type = _type
-            self.text = text
-            self.start = start
-            self.end = end
-
-        def __eq__(self, other):
-            return self.type == other.type and self.text == other.text and self.start == other.start and self.end == other.end
-
-
 class DateParser(object):
     """
     Flexible date parser for human written dates
     """
-    LEXER = DateLexer()
-
     AM = 0
     PM = 1
 
@@ -150,15 +86,6 @@ class DateParser(object):
         :param text: the text to parse
         :return: the parsed date or datetime
         """
-        result = self._parse(text, Mode.AUTO)
-        return result.value if result else None
-
-    def auto_with_location(self, text):
-        """
-        Returns a date or datetime depending on what information is available, along with location information
-        :param text: the text to parse
-        :return: the result including the date or datetime and location
-        """
         return self._parse(text, Mode.AUTO)
 
     def time(self, text):
@@ -167,8 +94,7 @@ class DateParser(object):
         :param text: the text to parse
         :return: the parsed time
         """
-        result = self._parse(text, Mode.TIME)
-        return result.value if result else None
+        return self._parse(text, Mode.TIME)
 
     def _parse(self, text, mode):
         """
@@ -177,11 +103,8 @@ class DateParser(object):
         if not text.strip():
             return None
 
-        # split the text into numerical and alphabetical tokens
-        tokens = self.LEXER.tokenize(text)
-
-        start_pos = -1
-        end_pos = -1
+        # split the text into numerical and text tokens
+        tokens = regex.findall(r'([0-9]+|[^\W\d]+)', text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)
 
         # get the possibilities for each token
         token_possibilities = []
@@ -189,12 +112,6 @@ class DateParser(object):
             possibilities = self._get_token_possibilities(token, mode)
             if len(possibilities) > 0:
                 token_possibilities.append(possibilities)
-
-                # keep track of min start and max end positions of tokens with possibilities
-                if start_pos < 0:
-                    start_pos = token.start
-                if token.end > end_pos:
-                    end_pos = token.end
 
         # see what valid sequences we can make
         sequences = self._get_possible_sequences(mode, len(token_possibilities), self._date_style)
@@ -210,10 +127,10 @@ class DateParser(object):
                 if value is None:
                     break
             else:
-                # try to form a valid date or time and return it if successful
+                # try to make a valid result from this and return if successful
                 obj = self._make_result(match, self._now, self._timezone)
                 if obj is not None:
-                    return DateParser.Result(obj, start_pos, end_pos)
+                    return obj
 
         return None
 
@@ -256,14 +173,13 @@ class DateParser(object):
         :param mode: the parse mode
         :return: the dict of possible types and values if token was of that type
         """
+        token = token.lower().strip()
         possibilities = {}
-        text = token.text.lower()
-
-        if token.type == DateLexer.Token.Type.NUMERIC:
-            as_int = int(text)
+        try:
+            as_int = int(token)
 
             if mode != Mode.TIME:
-                if 1 <= as_int <= 9999 and (len(text) == 2 or len(text) == 4):
+                if 1 <= as_int <= 9999 and (len(token) == 2 or len(token) == 4):
                     possibilities[Component.YEAR] = as_int
                 if 1 <= as_int <= 12:
                     possibilities[Component.MONTH] = as_int
@@ -277,37 +193,37 @@ class DateParser(object):
                     possibilities[Component.MINUTE] = as_int
                 if 0 <= as_int <= 59:
                     possibilities[Component.SECOND] = as_int
-                if len(text) == 3 or len(text) == 6 or len(text) == 9:
+                if len(token) == 3 or len(token) == 6 or len(token) == 9:
                     nano = 0
-                    if len(text) == 3:  # millisecond precision
+                    if len(token) == 3:  # millisecond precision
                         nano = as_int * 1000000
-                    elif len(text) == 6:  # microsecond precision
+                    elif len(token) == 6:  # microsecond precision
                         nano = as_int * 1000
-                    elif len(text) == 9:
+                    elif len(token) == 9:
                         nano = as_int
                     possibilities[Component.NANO] = nano
-                if len(text) == 4:
+                if len(token) == 4:
                     hour = as_int / 100
                     minute = as_int - (hour * 100)
                     if 1 <= hour <= 24 and 1 <= minute <= 59:
                         possibilities[Component.HOUR_AND_MINUTE] = as_int
 
-        elif token.type == DateLexer.Token.Type.ALPHABETIC:
+        except ValueError:
             if mode != Mode.TIME:
                 # could it be a month alias?
-                month = MONTHS_BY_ALIAS.get(text, None)
+                month = MONTHS_BY_ALIAS.get(token, None)
                 if month is not None:
                     possibilities[Component.MONTH] = month
 
             if mode != Mode.DATE:
                 # could it be an AM/PM marker?
-                is_am_marker = text == "am"
-                is_pm_marker = text == "pm"
+                is_am_marker = token == "am"
+                is_pm_marker = token == "pm"
                 if is_am_marker or is_pm_marker:
                     possibilities[Component.AM_PM] = cls.AM if is_am_marker else cls.PM
 
                 # offset parsing is limited to Z meaning UTC for now
-                if text == "z":
+                if token == "z":
                     possibilities[Component.OFFSET] = 0
 
         return possibilities
@@ -382,15 +298,6 @@ class DateParser(object):
                 else:
                     return short_year - 100
         return short_year
-
-    class Result(object):
-        """
-        A complete parse result
-        """
-        def __init__(self, value, start, end):
-            self.value = value
-            self.start = start
-            self.end = end
 
 
 def load_month_aliases(filename):

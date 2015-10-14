@@ -11,78 +11,26 @@ from datetime import datetime, date, time
 from decimal import Decimal
 from time import clock
 from . import conversions, EvaluationError
-from .dates import DateLexer, DateParser, DateStyle
+from .dates import DateParser, DateStyle
 from .evaluator import Evaluator, EvaluationContext, EvaluationStrategy, DEFAULT_FUNCTION_MANAGER
 from .functions import excel, custom
 from .utils import urlquote, decimal_pow, tokenize
 
 
-class DateLexerTest(unittest.TestCase):
-
-    def test_tokenize(self):
-        lexer = DateLexer()
-
-        self.assertEqual(lexer.tokenize(""), [])
-
-        self.assertEqual(lexer.tokenize("ab123cd"), [
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "ab", 0, 2),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "123", 2, 5),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "cd", 5, 7)
-        ])
-
-        self.assertEqual(lexer.tokenize(" åb123d éf45-gh "), [
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "åb", 1, 3),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "123", 3, 6),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "d", 6, 7),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "éf", 8, 10),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "45", 10, 12),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "gh", 13, 15)
-        ])
-
-        self.assertEqual(lexer.tokenize("12/5/15"), [
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "12", 0, 2),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "5", 3, 4),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "15", 5, 7)
-        ])
-
-        self.assertEqual(lexer.tokenize("2015-10-13T12:31:30.123Z"), [
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "2015", 0, 4),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "10", 5, 7),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "13", 8, 10),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "T", 10, 11),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "12", 11, 13),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "31", 14, 16),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "30", 17, 19),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "123", 20, 23),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "Z", 23, 24)
-        ])
-
-        self.assertEqual(lexer.tokenize("Today is the 13th of Oct 2015"), [
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "Today", 0, 5),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "is", 6, 8),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "the", 9, 12),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "13", 13, 15),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "th", 15, 17),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "of", 18, 20),
-                DateLexer.Token(DateLexer.Token.Type.ALPHABETIC, "Oct", 21, 24),
-                DateLexer.Token(DateLexer.Token.Type.NUMERIC, "2015", 25, 29)
-        ])
-
-
 class DateParserTests(unittest.TestCase):
 
-    def test_auto_with_location(self):
+    def test_auto(self):
         tz = pytz.timezone('Africa/Kigali')
         parser = DateParser(date(2015, 8, 12), tz, DateStyle.DAY_FIRST)
 
         tests = (
-            ("1/2/34", date(2034, 2, 1), "1/2/34"),
-            (" 1-2-34 ", date(2034, 2, 1), "1-2-34"),
-            ("01 02 34", date(2034, 2, 1), "01 02 34"),
-            ("1 Feb 34", date(2034, 2, 1), "1 Feb 34"),
-            ("1. 2 '34", date(2034, 2, 1), "1. 2 '34"),
-            ("my birthday is on 01/02/34 so it is", date(2034, 2, 1), "01/02/34"),
-            ("it's 1st february 2034", date(2034, 2, 1), "1st february 2034"),
+            ("1/2/34", date(2034, 2, 1)),
+            ("1-2-34", date(2034, 2, 1)),
+            ("01 02 34", date(2034, 2, 1)),
+            ("1 Feb 34", date(2034, 2, 1)),
+            ("1. 2 '34", date(2034, 2, 1)),
+            ("my birthday is on 01/02/34", date(2034, 2, 1)),
+            ("1st february 2034", date(2034, 2, 1)),
             ("1er février 2034", date(2034, 2, 1)),
             ("2/25-70", date(1970, 2, 25)),  # date style should be ignored when it doesn't make sense
             ("1 feb", date(2015, 2, 1)),  # year can be omitted
@@ -91,7 +39,7 @@ class DateParserTests(unittest.TestCase):
             ("1/2/34 14:55", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
             ("1-2-34 2:55PM", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
             ("01 02 34 1455", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
-            ("it was 1 Feb 34 02:55 PM", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0)), "1 Feb 34 02:55 PM"),
+            ("1 Feb 34 02:55 PM", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
             ("1. 2 '34 02:55pm", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
             ("1st february 2034 14.55", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
             ("1er février 2034 1455h", tz.localize(datetime(2034, 2, 1, 14, 55, 0, 0))),
@@ -103,11 +51,7 @@ class DateParserTests(unittest.TestCase):
             ("2034-02-01T14:55:41.060422123Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC))
         )
         for test in tests:
-            text = test[0]
-            result = parser.auto_with_location(text)
-            self.assertEqual(result.value, test[1], "Parser error for %s" % text)
-            if len(test) == 3:
-                self.assertEqual(text[result.start:result.end], test[2])
+            self.assertEqual(parser.auto(test[0]), test[1], "Parser error for %s" % test[0])
 
     def test_time(self):
         tz = pytz.timezone('Africa/Kigali')
