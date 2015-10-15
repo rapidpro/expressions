@@ -6,7 +6,6 @@ import io.rapidpro.expressions.functions.annotations.IntegerDefault;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,18 +30,25 @@ public class FunctionManagerTest {
         FunctionManager manager = new FunctionManager();
         manager.addLibrary(TestFunctions.class);
 
-        assertThat(manager.invokeFunction(m_context, "foo", new ArrayList<Object>(Arrays.asList(12))), is((Object) 24));
-        assertThat(manager.invokeFunction(m_context, "FOO", new ArrayList<Object>(Arrays.asList(12))), is((Object) 24));
-        assertThat(manager.invokeFunction(m_context, "bar", new ArrayList<Object>(Arrays.asList(12, 5))), is((Object) 17));
-        assertThat(manager.invokeFunction(m_context, "bar", new ArrayList<Object>(Arrays.asList(12))), is((Object) 14));
-        assertThat(manager.invokeFunction(m_context, "doh", new ArrayList<Object>(Arrays.asList(12, 1, 2, 3))), is((Object) 36));
+        assertThat(manager.invokeFunction(m_context, "foo", Arrays.<Object>asList(12)), is((Object) 24));
+        assertThat(manager.invokeFunction(m_context, "FOO", Arrays.<Object>asList(12)), is((Object) 24));
+        assertThat(manager.invokeFunction(m_context, "bar", Arrays.<Object>asList(12, 5)), is((Object) 17));
+        assertThat(manager.invokeFunction(m_context, "bar", Arrays.<Object>asList(12)), is((Object) 14));
+        assertThat(manager.invokeFunction(m_context, "doh", Arrays.<Object>asList(12, 1, 2, 3)), is((Object) 36));
     }
 
     @Test(expected = EvaluationError.class)
     public void invokeFunction_nonPublic() {
         FunctionManager manager = new FunctionManager();
         manager.addLibrary(TestFunctions.class);
-        manager.invokeFunction(m_context, "zed", new ArrayList<Object>(Arrays.asList(12)));
+        manager.invokeFunction(m_context, "zed", Arrays.<Object>asList(12));
+    }
+
+    @Test(expected = EvaluationError.class)
+    public void invokeFunction_nonRecognizedDataType() {
+        FunctionManager manager = new FunctionManager();
+        manager.addLibrary(TestFunctions.class);
+        manager.invokeFunction(m_context, "foo", Arrays.<Object>asList(this));
     }
 
     @Test

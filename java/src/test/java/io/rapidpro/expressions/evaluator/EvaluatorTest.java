@@ -28,16 +28,19 @@ public class EvaluatorTest {
         EvaluatedTemplate evaluated = m_evaluator.evaluateTemplate("Answer is @(2 + 3)", new EvaluationContext());
         assertThat(evaluated.getOutput(), is("Answer is 5"));
         assertThat(evaluated.getErrors(), empty());
+        assertThat(evaluated.hasErrors(), is(false));
 
         // with unbalanced expression
         evaluated = m_evaluator.evaluateTemplate("Answer is @(2 + 3", new EvaluationContext());
         assertThat(evaluated.getOutput(), is("Answer is @(2 + 3"));
         assertThat(evaluated.getErrors(), empty());
+        assertThat(evaluated.hasErrors(), is(false));
 
         // with invalid character
         evaluated = m_evaluator.evaluateTemplate("@('x')", new EvaluationContext());
         assertThat(evaluated.getOutput(), is("@('x')"));
         assertThat(evaluated.getErrors(), contains("Expression error at: '"));
+        assertThat(evaluated.hasErrors(), is(true));
     }
 
     @Test

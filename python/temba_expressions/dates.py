@@ -100,7 +100,7 @@ class DateParser(object):
         """
         Returns a date, datetime or time depending on what information is available
         """
-        if not text.strip():
+        if text is None or not text.strip():
             return None
 
         # split the text into numerical and text tokens

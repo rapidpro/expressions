@@ -17,6 +17,11 @@ public class DateParserTest {
         DateParser parser = new DateParser(LocalDate.of(2015, 8, 12), tz, DateStyle.DAY_FIRST);
 
         Object[][] tests = {
+                { null, null },
+                { "", null },
+                { "x", null },
+                { "12", null },
+                { "31-02-99", null },
                 { "1/2/34", LocalDate.of(2034, 2, 1) },
                 { "1-2-34", LocalDate.of(2034, 2, 1) },
                 { "01 02 34", LocalDate.of(2034, 2, 1) },
@@ -52,6 +57,10 @@ public class DateParserTest {
         DateParser parser = new DateParser(LocalDate.of(2015, 8, 12), tz, DateStyle.DAY_FIRST);
 
         Object[][] tests = {
+                { null, null },
+                { "", null },
+                { "x", null },
+                { "12", null },
                 { "2:55", OffsetTime.of(2, 55, 0, 0, ZoneOffset.ofHours(2)) },
                 { "2:55 AM", OffsetTime.of(2, 55, 0, 0, ZoneOffset.ofHours(2)) },
                 { "14:55", OffsetTime.of(14, 55, 0, 0, ZoneOffset.ofHours(2)) },

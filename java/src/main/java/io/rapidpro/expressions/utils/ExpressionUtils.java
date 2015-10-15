@@ -18,7 +18,9 @@ import java.util.Map;
 /**
  * Utility methods
  */
-public class ExpressionUtils {
+public final class ExpressionUtils {
+
+    private ExpressionUtils() {}
 
     protected static DateTimeFormatter JSON_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 

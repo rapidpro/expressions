@@ -102,7 +102,7 @@ public class FunctionManager {
 
         try {
             return func.invoke(null, parameters.toArray(new Object[parameters.size()]));
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             List<String> prettyArgs = new ArrayList<>();
             for (Object arg : args) {
                 String pretty;

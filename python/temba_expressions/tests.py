@@ -5,6 +5,7 @@ import codecs
 import json
 import pytz
 import regex
+import sys
 import unittest
 
 from datetime import datetime, date, time
@@ -13,7 +14,7 @@ from time import clock
 from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
 from .evaluator import Evaluator, EvaluationContext, EvaluationStrategy, DEFAULT_FUNCTION_MANAGER
-from .functions import excel, custom
+from .functions import FunctionManager, excel, custom
 from .utils import urlquote, decimal_pow, tokenize, format_json_date, parse_json_date
 
 
@@ -24,6 +25,11 @@ class DateParserTest(unittest.TestCase):
         parser = DateParser(date(2015, 8, 12), tz, DateStyle.DAY_FIRST)
 
         tests = (
+            (None, None),
+            ("", None),
+            ("x", None),
+            ("12", None),
+            ("31-02-99", None),
             ("1/2/34", date(2034, 2, 1)),
             ("1-2-34", date(2034, 2, 1)),
             ("01 02 34", date(2034, 2, 1)),
@@ -58,6 +64,10 @@ class DateParserTest(unittest.TestCase):
         parser = DateParser(date(2015, 8, 12), tz, DateStyle.DAY_FIRST)
 
         tests = (
+            (None, None),
+            ("", None),
+            ("x", None),
+            ("12", None),
             ("2:55", time(2, 55, 0)),
             ("2:55 AM", time(2, 55, 0)),
             ("14:55", time(14, 55, 0)),
@@ -290,224 +300,239 @@ class EvaluatorTest(unittest.TestCase):
 
         
 class FunctionsTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.tz = pytz.timezone("Africa/Kigali")
+        self.now = self.tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456))
+        self.context = EvaluationContext({}, self.tz, DateStyle.DAY_FIRST, self.now)
+
+    def test_invoke_function(self):
+        manager = FunctionManager()
+        manager.add_library(sys.modules[__name__])
+        
+        self.assertEqual(manager.invoke_function(self.context, "foo", [12]), 24)
+        self.assertEqual(manager.invoke_function(self.context, "FOO", [12]), 24)
+        self.assertEqual(manager.invoke_function(self.context, "bar", [12, 5]), 17)
+        self.assertEqual(manager.invoke_function(self.context, "bar", [12]), 14)
+        self.assertEqual(manager.invoke_function(self.context, "doh", [12, 1, 2, 3]), 36)
+
+        # can't invoke a "private" function
+        self.assertRaises(EvaluationError, manager.invoke_function, self.context, "zed", [12])
+
+        # can't pass an unrecognized data type
+        self.assertRaises(EvaluationError, manager.invoke_function, self.context, "foo", [self])
 
     def test_build_listing(self):
         listing = DEFAULT_FUNCTION_MANAGER.build_listing()
         self.assertEqual(listing[0], {'name': 'ABS', 'description': "Returns the absolute value of a number"})
     
     def test_excel(self):
-        tz = pytz.timezone("Africa/Kigali")
-        now = tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456))
-        context = EvaluationContext({}, tz, DateStyle.DAY_FIRST, now)
-
         # text functions
-        self.assertEqual(excel.char(context, 9), '\t')
-        self.assertEqual(excel.char(context, 10), '\n')
-        self.assertEqual(excel.char(context, 13), '\r')
-        self.assertEqual(excel.char(context, 32), ' ')
-        self.assertEqual(excel.char(context, 65), 'A')
+        self.assertEqual(excel.char(self.context, 9), '\t')
+        self.assertEqual(excel.char(self.context, 10), '\n')
+        self.assertEqual(excel.char(self.context, 13), '\r')
+        self.assertEqual(excel.char(self.context, 32), ' ')
+        self.assertEqual(excel.char(self.context, 65), 'A')
 
-        self.assertEqual(excel.clean(context, 'Hello \nwo\trl\rd'), 'Hello world')
+        self.assertEqual(excel.clean(self.context, 'Hello \nwo\trl\rd'), 'Hello world')
 
-        self.assertEqual(excel.code(context, '\t'), 9)
-        self.assertEqual(excel.code(context, '\n'), 10)
+        self.assertEqual(excel.code(self.context, '\t'), 9)
+        self.assertEqual(excel.code(self.context, '\n'), 10)
 
-        self.assertEqual(excel.concatenate(context, 'Hello', 4, '\n'), 'Hello4\n')
-        self.assertEqual(excel.concatenate(context, 'واحد', ' ', 'إثنان', ' ', 'ثلاثة'), 'واحد إثنان ثلاثة')
+        self.assertEqual(excel.concatenate(self.context, 'Hello', 4, '\n'), 'Hello4\n')
+        self.assertEqual(excel.concatenate(self.context, 'واحد', ' ', 'إثنان', ' ', 'ثلاثة'), 'واحد إثنان ثلاثة')
 
-        self.assertEqual(excel.fixed(context, Decimal('1234.5678')), '1,234.57')  # default is 2 decimal places w/ comma
-        self.assertEqual(excel.fixed(context, '1234.5678', 1), '1,234.6')
-        self.assertEqual(excel.fixed(context, '1234.5678', 2), '1,234.57')
-        self.assertEqual(excel.fixed(context, '1234.5678', 3), '1,234.568')
-        self.assertEqual(excel.fixed(context, '1234.5678', 4), '1,234.5678')
-        self.assertEqual(excel.fixed(context, '1234.5678', 0), '1,235')
-        self.assertEqual(excel.fixed(context, '1234.5678', -1), '1,230')
-        self.assertEqual(excel.fixed(context, '1234.5678', -2), '1,200')
-        self.assertEqual(excel.fixed(context, '1234.5678', -3), '1,000')
-        self.assertEqual(excel.fixed(context, '1234.5678', -4), '0')
-        self.assertEqual(excel.fixed(context, '1234.5678', 3, True), '1234.568')
-        self.assertEqual(excel.fixed(context, '1234.5678', -2, True), '1200')
+        self.assertEqual(excel.fixed(self.context, Decimal('1234.5678')), '1,234.57')  # default is 2 decimal places w/ comma
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 1), '1,234.6')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 2), '1,234.57')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 3), '1,234.568')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 4), '1,234.5678')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 0), '1,235')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', -1), '1,230')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', -2), '1,200')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', -3), '1,000')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', -4), '0')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', 3, True), '1234.568')
+        self.assertEqual(excel.fixed(self.context, '1234.5678', -2, True), '1200')
 
-        self.assertEqual(excel.left(context, 'abcdef', 0), '')
-        self.assertEqual(excel.left(context, 'abcdef', 2), 'ab')
-        self.assertEqual(excel.left(context, 'واحد', 2), 'وا')
-        self.assertRaises(ValueError, excel.left, context, 'abcd', -1)  # exception for negative char count
+        self.assertEqual(excel.left(self.context, 'abcdef', 0), '')
+        self.assertEqual(excel.left(self.context, 'abcdef', 2), 'ab')
+        self.assertEqual(excel.left(self.context, 'واحد', 2), 'وا')
+        self.assertRaises(ValueError, excel.left, self.context, 'abcd', -1)  # exception for negative char count
 
-        self.assertEqual(excel._len(context, ''), 0)
-        self.assertEqual(excel._len(context, 'abc'), 3)
-        self.assertEqual(excel._len(context, 'واحد'), 4)
+        self.assertEqual(excel._len(self.context, ''), 0)
+        self.assertEqual(excel._len(self.context, 'abc'), 3)
+        self.assertEqual(excel._len(self.context, 'واحد'), 4)
 
-        self.assertEqual(excel.lower(context, 'aBcD'), 'abcd')
-        self.assertEqual(excel.lower(context, 'A واحد'), 'a واحد')
+        self.assertEqual(excel.lower(self.context, 'aBcD'), 'abcd')
+        self.assertEqual(excel.lower(self.context, 'A واحد'), 'a واحد')
 
-        self.assertEqual(excel.proper(context, 'first-second third'), 'First-Second Third')
-        self.assertEqual(excel.proper(context, 'واحد abc ثلاثة'), 'واحد Abc ثلاثة')
+        self.assertEqual(excel.proper(self.context, 'first-second third'), 'First-Second Third')
+        self.assertEqual(excel.proper(self.context, 'واحد abc ثلاثة'), 'واحد Abc ثلاثة')
 
-        self.assertEqual(excel.rept(context, 'abc', 3), 'abcabcabc')
-        self.assertEqual(excel.rept(context, 'واحد', 3), 'واحدواحدواحد')
+        self.assertEqual(excel.rept(self.context, 'abc', 3), 'abcabcabc')
+        self.assertEqual(excel.rept(self.context, 'واحد', 3), 'واحدواحدواحد')
 
-        self.assertEqual(excel.right(context, 'abcdef', 0), '')
-        self.assertEqual(excel.right(context, 'abcdef', 2), 'ef')
-        self.assertEqual(excel.right(context, 'واحد', 2), 'حد')
-        self.assertRaises(ValueError, excel.right, context, 'abcd', -1)  # exception for negative char count
+        self.assertEqual(excel.right(self.context, 'abcdef', 0), '')
+        self.assertEqual(excel.right(self.context, 'abcdef', 2), 'ef')
+        self.assertEqual(excel.right(self.context, 'واحد', 2), 'حد')
+        self.assertRaises(ValueError, excel.right, self.context, 'abcd', -1)  # exception for negative char count
 
-        self.assertEqual(excel.substitute(context, 'hello Hello world', 'hello', 'bonjour'), 'bonjour Hello world')  # case-sensitive
-        self.assertEqual(excel.substitute(context, 'hello hello world', 'hello', 'bonjour'), 'bonjour bonjour world')  # all instances
-        self.assertEqual(excel.substitute(context, 'hello hello world', 'hello', 'bonjour', 2), 'hello bonjour world')  # specific instance
-        self.assertEqual(excel.substitute(context, 'واحد إثنان ثلاثة', 'واحد', 'إثنان'), 'إثنان إثنان ثلاثة')
+        self.assertEqual(excel.substitute(self.context, 'hello Hello world', 'hello', 'bonjour'), 'bonjour Hello world')  # case-sensitive
+        self.assertEqual(excel.substitute(self.context, 'hello hello world', 'hello', 'bonjour'), 'bonjour bonjour world')  # all instances
+        self.assertEqual(excel.substitute(self.context, 'hello hello world', 'hello', 'bonjour', 2), 'hello bonjour world')  # specific instance
+        self.assertEqual(excel.substitute(self.context, 'واحد إثنان ثلاثة', 'واحد', 'إثنان'), 'إثنان إثنان ثلاثة')
 
-        self.assertEqual(excel.unichar(context, 65), 'A')
-        self.assertEqual(excel.unichar(context, 1575), 'ا')
+        self.assertEqual(excel.unichar(self.context, 65), 'A')
+        self.assertEqual(excel.unichar(self.context, 1575), 'ا')
 
-        self.assertEqual(excel._unicode(context, '\t'), 9)
-        self.assertEqual(excel._unicode(context, '\u04d2'), 1234)
-        self.assertEqual(excel._unicode(context, 'ا'), 1575)
-        self.assertRaises(ValueError, excel._unicode, context, '')  # exception for empty string
+        self.assertEqual(excel._unicode(self.context, '\t'), 9)
+        self.assertEqual(excel._unicode(self.context, '\u04d2'), 1234)
+        self.assertEqual(excel._unicode(self.context, 'ا'), 1575)
+        self.assertRaises(ValueError, excel._unicode, self.context, '')  # exception for empty string
 
-        self.assertEqual(excel.upper(context, 'aBcD'), 'ABCD')
-        self.assertEqual(excel.upper(context, 'a واحد'), 'A واحد')
+        self.assertEqual(excel.upper(self.context, 'aBcD'), 'ABCD')
+        self.assertEqual(excel.upper(self.context, 'a واحد'), 'A واحد')
 
         # date functions
-        self.assertEqual(excel.date(context, 2012, "3", Decimal(2.0)), date(2012, 3, 2))
+        self.assertEqual(excel.date(self.context, 2012, "3", Decimal(2.0)), date(2012, 3, 2))
 
-        self.assertEqual(excel.datevalue(context, "2-3-13"), date(2013, 3, 2))
+        self.assertEqual(excel.datevalue(self.context, "2-3-13"), date(2013, 3, 2))
 
-        self.assertEqual(excel.day(context, date(2012, 3, 2)), 2)
+        self.assertEqual(excel.day(self.context, date(2012, 3, 2)), 2)
 
-        self.assertEqual(excel.edate(context, date(2013, 3, 2), 1), date(2013, 4, 2))
-        self.assertEqual(excel.edate(context, '01-02-2014', -2), date(2013, 12, 1))
+        self.assertEqual(excel.edate(self.context, date(2013, 3, 2), 1), date(2013, 4, 2))
+        self.assertEqual(excel.edate(self.context, '01-02-2014', -2), date(2013, 12, 1))
 
-        self.assertEqual(excel.hour(context, '01-02-2014 03:55'), 3)
+        self.assertEqual(excel.hour(self.context, '01-02-2014 03:55'), 3)
 
-        self.assertEqual(excel.minute(context, '01-02-2014 03:55'), 55)
+        self.assertEqual(excel.minute(self.context, '01-02-2014 03:55'), 55)
 
-        self.assertEqual(excel.now(context), tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456)))
+        self.assertEqual(excel.now(self.context), self.tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456)))
 
-        self.assertEqual(excel.second(context, '01-02-2014 03:55:30'), 30)
+        self.assertEqual(excel.second(self.context, '01-02-2014 03:55:30'), 30)
 
-        self.assertEqual(excel.time(context, 1, 30, 15), time(1, 30, 15))
+        self.assertEqual(excel.time(self.context, 1, 30, 15), time(1, 30, 15))
 
-        self.assertEqual(excel.timevalue(context, '1:30:15'), time(1, 30, 15))
+        self.assertEqual(excel.timevalue(self.context, '1:30:15'), time(1, 30, 15))
 
-        self.assertEqual(excel.today(context), date(2015, 8, 14))
+        self.assertEqual(excel.today(self.context), date(2015, 8, 14))
 
-        self.assertEqual(excel.weekday(context, date(2015, 8, 15)), 7)  # Sat = 7
-        self.assertEqual(excel.weekday(context, "16th Aug 2015"), 1)  # Sun = 1
+        self.assertEqual(excel.weekday(self.context, date(2015, 8, 15)), 7)  # Sat = 7
+        self.assertEqual(excel.weekday(self.context, "16th Aug 2015"), 1)  # Sun = 1
 
-        self.assertEqual(excel.year(context, date(2012, 3, 2)), 2012)
+        self.assertEqual(excel.year(self.context, date(2012, 3, 2)), 2012)
 
         # math functions
-        self.assertEqual(excel._abs(context, 1), 1)
-        self.assertEqual(excel._abs(context, -1), 1)
+        self.assertEqual(excel._abs(self.context, 1), 1)
+        self.assertEqual(excel._abs(self.context, -1), 1)
 
-        self.assertEqual(excel._int(context, Decimal('8.9')), 8)
-        self.assertEqual(excel._int(context, Decimal('-8.9')), -9)
+        self.assertEqual(excel._int(self.context, Decimal('8.9')), 8)
+        self.assertEqual(excel._int(self.context, Decimal('-8.9')), -9)
 
-        self.assertEqual(excel._max(context, 1), 1)
-        self.assertEqual(excel._max(context, 1, 3, 2, -5), 3)
-        self.assertEqual(excel._max(context, -2, -5), -2)
+        self.assertEqual(excel._max(self.context, 1), 1)
+        self.assertEqual(excel._max(self.context, 1, 3, 2, -5), 3)
+        self.assertEqual(excel._max(self.context, -2, -5), -2)
 
-        self.assertEqual(excel._min(context, 1), 1)
-        self.assertEqual(excel._min(context, -1, -3, -2, 5), -3)
-        self.assertEqual(excel._min(context, -2, -5), -5)
+        self.assertEqual(excel._min(self.context, 1), 1)
+        self.assertEqual(excel._min(self.context, -1, -3, -2, 5), -3)
+        self.assertEqual(excel._min(self.context, -2, -5), -5)
 
-        self.assertEqual(excel.mod(context, Decimal(3), 2), 1)
-        self.assertEqual(excel.mod(context, Decimal(-3), Decimal(2)), 1)
-        self.assertEqual(excel.mod(context, Decimal(3), Decimal(-2)), -1)
-        self.assertEqual(excel.mod(context, Decimal(-3), Decimal(-2)), -1)
+        self.assertEqual(excel.mod(self.context, Decimal(3), 2), 1)
+        self.assertEqual(excel.mod(self.context, Decimal(-3), Decimal(2)), 1)
+        self.assertEqual(excel.mod(self.context, Decimal(3), Decimal(-2)), -1)
+        self.assertEqual(excel.mod(self.context, Decimal(-3), Decimal(-2)), -1)
 
-        self.assertEqual(excel._power(context, '4', '2'), Decimal('16'))
-        self.assertEqual(excel._power(context, '4', '0.5'), Decimal('2'))
+        self.assertEqual(excel._power(self.context, '4', '2'), Decimal('16'))
+        self.assertEqual(excel._power(self.context, '4', '0.5'), Decimal('2'))
 
-        self.assertEqual(excel._sum(context, 1), 1)
-        self.assertEqual(excel._sum(context, 1, 2, 3), 6)
+        self.assertEqual(excel._sum(self.context, 1), 1)
+        self.assertEqual(excel._sum(self.context, 1, 2, 3), 6)
 
         # logical functions
-        self.assertEqual(excel._and(context, False), False)
-        self.assertEqual(excel._and(context, True), True)
-        self.assertEqual(excel._and(context, 1, True, "true"), True)
-        self.assertEqual(excel._and(context, 1, True, "true", 0), False)
+        self.assertEqual(excel._and(self.context, False), False)
+        self.assertEqual(excel._and(self.context, True), True)
+        self.assertEqual(excel._and(self.context, 1, True, "true"), True)
+        self.assertEqual(excel._and(self.context, 1, True, "true", 0), False)
 
         self.assertEqual(excel.false(), False)
 
-        self.assertEqual(excel._if(context, True), 0)
-        self.assertEqual(excel._if(context, True, 'x', 'y'), 'x')
-        self.assertEqual(excel._if(context, 'true', 'x', 'y'), 'x')
-        self.assertEqual(excel._if(context, False), False)
-        self.assertEqual(excel._if(context, False, 'x', 'y'), 'y')
-        self.assertEqual(excel._if(context, 0, 'x', 'y'), 'y')
+        self.assertEqual(excel._if(self.context, True), 0)
+        self.assertEqual(excel._if(self.context, True, 'x', 'y'), 'x')
+        self.assertEqual(excel._if(self.context, 'true', 'x', 'y'), 'x')
+        self.assertEqual(excel._if(self.context, False), False)
+        self.assertEqual(excel._if(self.context, False, 'x', 'y'), 'y')
+        self.assertEqual(excel._if(self.context, 0, 'x', 'y'), 'y')
 
-        self.assertEqual(excel._or(context, False), False)
-        self.assertEqual(excel._or(context, True), True)
-        self.assertEqual(excel._or(context, 1, False, "false"), True)
-        self.assertEqual(excel._or(context, 0, True, "false"), True)
+        self.assertEqual(excel._or(self.context, False), False)
+        self.assertEqual(excel._or(self.context, True), True)
+        self.assertEqual(excel._or(self.context, 1, False, "false"), True)
+        self.assertEqual(excel._or(self.context, 0, True, "false"), True)
 
         self.assertEqual(excel.true(), True)
 
     def test_custom(self):
-        context = EvaluationContext({}, pytz.timezone("Africa/Kigali"), DateStyle.DAY_FIRST)
+        self.assertEqual(custom.field(self.context, '15+M+Seattle', 1, '+'), '15')
+        self.assertEqual(custom.field(self.context, '15 M Seattle', 1), '15')
+        self.assertEqual(custom.field(self.context, '15+M+Seattle', 2, '+'), 'M')
+        self.assertEqual(custom.field(self.context, '15+M+Seattle', 3, '+'), 'Seattle')
+        self.assertEqual(custom.field(self.context, '15+M+Seattle', 4, '+'), '')
+        self.assertEqual(custom.field(self.context, '15    M  Seattle', 2), 'M')
+        self.assertEqual(custom.field(self.context, ' واحد إثنان-ثلاثة ', 1), 'واحد')
+        self.assertRaises(ValueError, custom.field, self.context, '15+M+Seattle', 0)
 
-        self.assertEqual(custom.field(context, '15+M+Seattle', 1, '+'), '15')
-        self.assertEqual(custom.field(context, '15 M Seattle', 1), '15')
-        self.assertEqual(custom.field(context, '15+M+Seattle', 2, '+'), 'M')
-        self.assertEqual(custom.field(context, '15+M+Seattle', 3, '+'), 'Seattle')
-        self.assertEqual(custom.field(context, '15+M+Seattle', 4, '+'), '')
-        self.assertEqual(custom.field(context, '15    M  Seattle', 2), 'M')
-        self.assertEqual(custom.field(context, ' واحد إثنان-ثلاثة ', 1), 'واحد')
-        self.assertRaises(ValueError, custom.field, context, '15+M+Seattle', 0)
+        self.assertEqual('', custom.first_word(self.context, '  '))
+        self.assertEqual('abc', custom.first_word(self.context, ' abc '))
+        self.assertEqual('abc', custom.first_word(self.context, ' abc '))
+        self.assertEqual('abc', custom.first_word(self.context, ' abc def ghi'))
+        self.assertEqual('واحد', custom.first_word(self.context, ' واحد '))
+        self.assertEqual('واحد', custom.first_word(self.context, ' واحد إثنان ثلاثة '))
 
-        self.assertEqual('', custom.first_word(context, '  '))
-        self.assertEqual('abc', custom.first_word(context, ' abc '))
-        self.assertEqual('abc', custom.first_word(context, ' abc '))
-        self.assertEqual('abc', custom.first_word(context, ' abc def ghi'))
-        self.assertEqual('واحد', custom.first_word(context, ' واحد '))
-        self.assertEqual('واحد', custom.first_word(context, ' واحد إثنان ثلاثة '))
+        self.assertEqual('25%', custom.percent(self.context, '0.25321'))
+        self.assertEqual('33%', custom.percent(self.context, Decimal('0.33')))
 
-        self.assertEqual('25%', custom.percent(context, '0.25321'))
-        self.assertEqual('33%', custom.percent(context, Decimal('0.33')))
+        self.assertEqual('1 2 3 4 , 5 6 7 8 , 9 0 1 2 , 3 4 5 6', custom.read_digits(self.context, '1234567890123456'))  # credit card
+        self.assertEqual('1 2 3 , 4 5 6 , 7 8 9 , 0 1 2', custom.read_digits(self.context, '+123456789012'))  # phone number
+        self.assertEqual('1 2 3 , 4 5 6', custom.read_digits(self.context, '123456'))  # triplets
+        self.assertEqual('1 2 3 , 4 5 , 6 7 8 9', custom.read_digits(self.context, '123456789'))  # soc security
+        self.assertEqual('1,2,3,4,5', custom.read_digits(self.context, '12345'))  # regular number, street address, etc
+        self.assertEqual('1,2,3', custom.read_digits(self.context, '123'))  # regular number, street address, etc
+        self.assertEqual('', custom.read_digits(self.context, ''))  # empty
 
-        self.assertEqual('1 2 3 4 , 5 6 7 8 , 9 0 1 2 , 3 4 5 6', custom.read_digits(context, '1234567890123456'))  # credit card
-        self.assertEqual('1 2 3 , 4 5 6 , 7 8 9 , 0 1 2', custom.read_digits(context, '+123456789012'))  # phone number
-        self.assertEqual('1 2 3 , 4 5 6', custom.read_digits(context, '123456'))  # triplets
-        self.assertEqual('1 2 3 , 4 5 , 6 7 8 9', custom.read_digits(context, '123456789'))  # soc security
-        self.assertEqual('1,2,3,4,5', custom.read_digits(context, '12345'))  # regular number, street address, etc
-        self.assertEqual('1,2,3', custom.read_digits(context, '123'))  # regular number, street address, etc
-        self.assertEqual('', custom.read_digits(context, ''))  # empty
+        self.assertEqual('', custom.remove_first_word(self.context, 'abc'))
+        self.assertEqual('', custom.remove_first_word(self.context, ' abc '))
+        self.assertEqual('def-ghi ', custom.remove_first_word(self.context, ' abc def-ghi '))  # should preserve remainder of text
+        self.assertEqual('', custom.remove_first_word(self.context, ' واحد '))
+        self.assertEqual('إثنان ثلاثة ', custom.remove_first_word(self.context, ' واحد إثنان ثلاثة '))
 
-        self.assertEqual('', custom.remove_first_word(context, 'abc'))
-        self.assertEqual('', custom.remove_first_word(context, ' abc '))
-        self.assertEqual('def-ghi ', custom.remove_first_word(context, ' abc def-ghi '))  # should preserve remainder of text
-        self.assertEqual('', custom.remove_first_word(context, ' واحد '))
-        self.assertEqual('إثنان ثلاثة ', custom.remove_first_word(context, ' واحد إثنان ثلاثة '))
+        self.assertEqual('abc', custom.word(self.context, ' abc def ghi', 1))
+        self.assertEqual('ghi', custom.word(self.context, 'abc-def  ghi  jkl', 3))
+        self.assertEqual('jkl', custom.word(self.context, 'abc-def  ghi  jkl', 3, True))
+        self.assertEqual('jkl', custom.word(self.context, 'abc-def  ghi  jkl', '3', 'TRUE'))  # string args only
+        self.assertEqual('jkl', custom.word(self.context, 'abc-def  ghi  jkl', -1))  # negative index
+        self.assertEqual('', custom.word(self.context, ' abc def   ghi', 6))  # out of range
+        self.assertEqual('', custom.word(self.context, '', 1))
+        self.assertEqual('واحد', custom.word(self.context, ' واحد إثنان ثلاثة ', 1))
+        self.assertEqual('ثلاثة', custom.word(self.context, ' واحد إثنان ثلاثة ', -1))
+        self.assertRaises(ValueError, custom.word, self.context, '', 0)  # number cannot be zero
 
-        self.assertEqual('abc', custom.word(context, ' abc def ghi', 1))
-        self.assertEqual('ghi', custom.word(context, 'abc-def  ghi  jkl', 3))
-        self.assertEqual('jkl', custom.word(context, 'abc-def  ghi  jkl', 3, True))
-        self.assertEqual('jkl', custom.word(context, 'abc-def  ghi  jkl', '3', 'TRUE'))  # string args only
-        self.assertEqual('jkl', custom.word(context, 'abc-def  ghi  jkl', -1))  # negative index
-        self.assertEqual('', custom.word(context, ' abc def   ghi', 6))  # out of range
-        self.assertEqual('', custom.word(context, '', 1))
-        self.assertEqual('واحد', custom.word(context, ' واحد إثنان ثلاثة ', 1))
-        self.assertEqual('ثلاثة', custom.word(context, ' واحد إثنان ثلاثة ', -1))
-        self.assertRaises(ValueError, custom.word, context, '', 0)  # number cannot be zero
+        self.assertEqual(0, custom.word_count(self.context, ''))
+        self.assertEqual(4, custom.word_count(self.context, ' abc-def  ghi  jkl'))
+        self.assertEqual(4, custom.word_count(self.context, ' abc-def  ghi  jkl', False))
+        self.assertEqual(3, custom.word_count(self.context, ' abc-def  ghi  jkl', True))
+        self.assertEqual(3, custom.word_count(self.context, ' واحد إثنان-ثلاثة ', False))
+        self.assertEqual(2, custom.word_count(self.context, ' واحد إثنان-ثلاثة ', True))
 
-        self.assertEqual(0, custom.word_count(context, ''))
-        self.assertEqual(4, custom.word_count(context, ' abc-def  ghi  jkl'))
-        self.assertEqual(4, custom.word_count(context, ' abc-def  ghi  jkl', False))
-        self.assertEqual(3, custom.word_count(context, ' abc-def  ghi  jkl', True))
-        self.assertEqual(3, custom.word_count(context, ' واحد إثنان-ثلاثة ', False))
-        self.assertEqual(2, custom.word_count(context, ' واحد إثنان-ثلاثة ', True))
-
-        self.assertEqual('abc def', custom.word_slice(context, ' abc  def ghi-jkl ', 1, 3))
-        self.assertEqual('ghi jkl', custom.word_slice(context, ' abc  def ghi-jkl ', 3, 0))
-        self.assertEqual('ghi-jkl', custom.word_slice(context, ' abc  def ghi-jkl ', 3, 0, True))
-        self.assertEqual('ghi jkl', custom.word_slice(context, ' abc  def ghi-jkl ', '3', '0', 'false'))  # string args only
-        self.assertEqual('ghi jkl', custom.word_slice(context, ' abc  def ghi-jkl ', 3))
-        self.assertEqual('def ghi', custom.word_slice(context, ' abc  def ghi-jkl ', 2, -1))
-        self.assertEqual('jkl', custom.word_slice(context, ' abc  def ghi-jkl ', -1))
-        self.assertEqual('def', custom.word_slice(context, ' abc  def ghi-jkl ', 2, -1, True))
-        self.assertEqual('واحد إثنان', custom.word_slice(context, ' واحد إثنان ثلاثة ', 1, 3))
-        self.assertRaises(ValueError, custom.word_slice, context, ' abc  def ghi-jkl ', 0)  # start can't be zero
+        self.assertEqual('abc def', custom.word_slice(self.context, ' abc  def ghi-jkl ', 1, 3))
+        self.assertEqual('ghi jkl', custom.word_slice(self.context, ' abc  def ghi-jkl ', 3, 0))
+        self.assertEqual('ghi-jkl', custom.word_slice(self.context, ' abc  def ghi-jkl ', 3, 0, True))
+        self.assertEqual('ghi jkl', custom.word_slice(self.context, ' abc  def ghi-jkl ', '3', '0', 'false'))  # string args only
+        self.assertEqual('ghi jkl', custom.word_slice(self.context, ' abc  def ghi-jkl ', 3))
+        self.assertEqual('def ghi', custom.word_slice(self.context, ' abc  def ghi-jkl ', 2, -1))
+        self.assertEqual('jkl', custom.word_slice(self.context, ' abc  def ghi-jkl ', -1))
+        self.assertEqual('def', custom.word_slice(self.context, ' abc  def ghi-jkl ', 2, -1, True))
+        self.assertEqual('واحد إثنان', custom.word_slice(self.context, ' واحد إثنان ثلاثة ', 1, 3))
+        self.assertRaises(ValueError, custom.word_slice, self.context, ' abc  def ghi-jkl ', 0)  # start can't be zero
 
 
 class TemplateTest(unittest.TestCase):
@@ -606,6 +631,10 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(format_json_date(val), "2014-10-03T01:41:12.790Z")
 
 
+#
+# Testing utility methods
+#
+
 def json_strip_comments(text):
     """
     Strips /* ... */ style comments from JSON
@@ -616,3 +645,23 @@ def json_strip_comments(text):
         text = text[:match.start()] + text[match.end():]
         match = pattern.search(text)
     return text
+
+
+#
+# Custom expression functions accessible when this module is loaded into a function manager as a library
+#
+
+def foo(ctx, a):
+    return a * 2
+
+
+def _bar(ctx, a, b=2):
+    return a + b
+
+
+def doh(a, *args):
+    return len(args) * a
+
+
+def __zed(a):
+    return a / 2
