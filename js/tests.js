@@ -47,4 +47,9 @@ describe("get auto-complete context", function() {
     it("no context if last typed thing can't be an identifier", function() {
         expect(parser.autoCompleteContext('Hi @contact.name from @(flow.sender + ')).toBeNull();
     });
+
+    it("no context if in a string literal", function() {
+        expect(parser.autoCompleteContext('Hi @(CONCAT("@con')).toBeNull();
+        expect(parser.autoCompleteContext('Hi @("!" & "@con')).toBeNull();
+    });
 });
