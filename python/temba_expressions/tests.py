@@ -14,10 +14,10 @@ from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
 from .evaluator import Evaluator, EvaluationContext, EvaluationStrategy, DEFAULT_FUNCTION_MANAGER
 from .functions import excel, custom
-from .utils import urlquote, decimal_pow, tokenize
+from .utils import urlquote, decimal_pow, tokenize, format_json_date, parse_json_date
 
 
-class DateParserTests(unittest.TestCase):
+class DateParserTest(unittest.TestCase):
 
     def test_auto(self):
         tz = pytz.timezone('Africa/Kigali')
@@ -85,7 +85,7 @@ class DateParserTests(unittest.TestCase):
         self.assertEqual(DateParser._year_from_2digits(99, 1990), 1999)
 
 
-class ConversionsTests(unittest.TestCase):
+class ConversionsTest(unittest.TestCase):
 
     def setUp(self):
         self.tz = pytz.timezone("Africa/Kigali")
@@ -208,7 +208,7 @@ class ConversionsTests(unittest.TestCase):
         self.assertEqual(conversions.to_repr(self.tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)), self.context), '"14-08-2015 09:12"')
 
 
-class EvaluatorTests(unittest.TestCase):
+class EvaluatorTest(unittest.TestCase):
 
     def setUp(self):
         self.evaluator = Evaluator()
@@ -289,16 +289,16 @@ class EvaluatorTests(unittest.TestCase):
         self.assertEqual(self.evaluator.evaluate_expression("FIXED(1234.5678, 1, True)", context), "1234.6")
 
         
-class FunctionsTests(unittest.TestCase):
+class FunctionsTest(unittest.TestCase):
 
     def test_build_listing(self):
         listing = DEFAULT_FUNCTION_MANAGER.build_listing()
         self.assertEqual(listing[0], {'name': 'ABS', 'description': "Returns the absolute value of a number"})
     
     def test_excel(self):
-        variables = {'date': {'now': '01-02-2014 03:55', 'today': '01-02-2014'}}
         tz = pytz.timezone("Africa/Kigali")
-        context = EvaluationContext(variables, tz, DateStyle.DAY_FIRST)
+        now = tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456))
+        context = EvaluationContext({}, tz, DateStyle.DAY_FIRST, now)
 
         # text functions
         self.assertEqual(excel.char(context, 9), '\t')
@@ -381,7 +381,7 @@ class FunctionsTests(unittest.TestCase):
 
         self.assertEqual(excel.minute(context, '01-02-2014 03:55'), 55)
 
-        self.assertEqual(excel.now(context), tz.localize(datetime(2014, 2, 1, 3, 55, 0, 0)))
+        self.assertEqual(excel.now(context), tz.localize(datetime(2015, 8, 14, 10, 38, 30, 123456)))
 
         self.assertEqual(excel.second(context, '01-02-2014 03:55:30'), 30)
 
@@ -389,7 +389,7 @@ class FunctionsTests(unittest.TestCase):
 
         self.assertEqual(excel.timevalue(context, '1:30:15'), time(1, 30, 15))
 
-        self.assertEqual(excel.today(context), date(2014, 2, 1))
+        self.assertEqual(excel.today(context), date(2015, 8, 14))
 
         self.assertEqual(excel.weekday(context, date(2015, 8, 15)), 7)  # Sat = 7
         self.assertEqual(excel.weekday(context, "16th Aug 2015"), 1)  # Sun = 1
@@ -510,24 +510,7 @@ class FunctionsTests(unittest.TestCase):
         self.assertRaises(ValueError, custom.word_slice, context, ' abc  def ghi-jkl ', 0)  # start can't be zero
 
 
-class UtilsTests(unittest.TestCase):
-
-    def test_urlquote(self):
-        self.assertEqual(urlquote(""), "")
-        self.assertEqual(urlquote("?!=Jow&Flow"), "%3F%21%3DJow%26Flow")
-
-    def test_decimal_pow(self):
-        self.assertEqual(decimal_pow(Decimal(4), Decimal(2)), Decimal(16))
-        self.assertEqual(decimal_pow(Decimal(4), Decimal('0.5')), Decimal(2))
-        self.assertEqual(decimal_pow(Decimal(2), Decimal(-2)), Decimal('0.25'))
-
-    def test_tokenize(self):
-        self.assertEqual(tokenize("this is a sentence"), ["this", "is", "a", "sentence"])
-        self.assertEqual(tokenize("  hey  \t@ there  "), ["hey", "there"])
-        self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])
-
-
-class TemplateTests(unittest.TestCase):
+class TemplateTest(unittest.TestCase):
 
     def test_templates(self):
         evaluator = Evaluator(allowed_top_levels=("channel", "contact", "date", "extra", "flow", "step"))
@@ -537,7 +520,7 @@ class TemplateTests(unittest.TestCase):
             tests_json = json.loads(tests_json, parse_float=Decimal)
             tests = []
             for test_json in tests_json:
-                tests.append(TemplateTest(test_json))
+                tests.append(TemplateTest.TestDefinition(test_json))
 
         failures = []
         start = int(round(clock() * 1000))
@@ -566,33 +549,61 @@ class TemplateTests(unittest.TestCase):
 
             self.fail("There were failures in the template tests")  # fail unit test if there were any errors
 
+    class TestDefinition(object):
 
-class TemplateTest(object):
+        def __init__(self, json_obj):
+            self.template = json_obj['template']
+            self.context = EvaluationContext.from_json(json_obj['context'])
+            self.url_encode = json_obj['url_encode']
+            self.expected_output = json_obj.get('output', None)
+            self.expected_output_regex = json_obj.get('output_regex', None)
+            self.expected_errors = json_obj['errors']
 
-    def __init__(self, json_obj):
-        self.template = json_obj['template']
-        self.context = EvaluationContext.from_json(json_obj['context'])
-        self.url_encode = json_obj['url_encode']
-        self.expected_output = json_obj.get('output', None)
-        self.expected_output_regex = json_obj.get('output_regex', None)
-        self.expected_errors = json_obj['errors']
+            self.actual_output = None
+            self.actual_errors = None
 
-        self.actual_output = None
-        self.actual_errors = None
+        def run(self, evaluator):
+            output, errors = evaluator.evaluate_template(self.template, self.context, self.url_encode)
+            self.actual_output = output
+            self.actual_errors = errors
 
-    def run(self, evaluator):
-        output, errors = evaluator.evaluate_template(self.template, self.context, self.url_encode)
-        self.actual_output = output
-        self.actual_errors = errors
+            if self.expected_output is not None:
+                if self.expected_output != self.actual_output:
+                    return False
+            else:
+                if not regex.compile(self.expected_output_regex).fullmatch(self.actual_output):
+                    return False
 
-        if self.expected_output is not None:
-            if self.expected_output != self.actual_output:
-                return False
-        else:
-            if not regex.compile(self.expected_output_regex).fullmatch(self.actual_output):
-                return False
+            return self.expected_errors == self.actual_errors
 
-        return self.expected_errors == self.actual_errors
+
+class UtilsTest(unittest.TestCase):
+
+    def test_urlquote(self):
+        self.assertEqual(urlquote(""), "")
+        self.assertEqual(urlquote("?!=Jow&Flow"), "%3F%21%3DJow%26Flow")
+
+    def test_decimal_pow(self):
+        self.assertEqual(decimal_pow(Decimal(4), Decimal(2)), Decimal(16))
+        self.assertEqual(decimal_pow(Decimal(4), Decimal('0.5')), Decimal(2))
+        self.assertEqual(decimal_pow(Decimal(2), Decimal(-2)), Decimal('0.25'))
+
+    def test_tokenize(self):
+        self.assertEqual(tokenize("this is a sentence"), ["this", "is", "a", "sentence"])
+        self.assertEqual(tokenize("  hey  \t@ there  "), ["hey", "there"])
+        self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])
+
+    def test_parse_json_date(self):
+        val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)
+
+        self.assertEqual(parse_json_date(None), None)
+        self.assertEqual(parse_json_date("2014-10-03T01:41:12.790Z"), val)
+
+    def test_format_json_date(self):
+        val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)
+
+        self.assertEqual(format_json_date(None), None)
+        self.assertEqual(format_json_date(val), "2014-10-03T01:41:12.790Z")
 
 
 def json_strip_comments(text):

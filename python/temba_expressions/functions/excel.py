@@ -2,10 +2,10 @@ from __future__ import absolute_import, unicode_literals
 
 import random
 
-from datetime import date as _date, time as _time, datetime as _datetime
+from datetime import date as _date, time as _time
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal, ROUND_FLOOR
-from temba_expressions import conversions, EvaluationError
+from temba_expressions import conversions
 from temba_expressions.utils import decimal_pow
 
 
@@ -212,11 +212,7 @@ def now(ctx):
     """
     Returns the current date and time
     """
-    try:
-        # for consistency, take date from the context if it's defined
-        return conversions.to_datetime(ctx.resolve_variable('date.now'), ctx)
-    except EvaluationError:
-        return _datetime.now(ctx.timezone)
+    return ctx.now.astimezone(ctx.timezone)
 
 
 def second(ctx, datetime):
@@ -244,11 +240,7 @@ def today(ctx):
     """
     Returns the current date
     """
-    try:
-        # for consistency, take date from the context if it's defined
-        return conversions.to_date(ctx.resolve_variable('date.today'), ctx)
-    except EvaluationError:
-        return _datetime.now(ctx.timezone).date()
+    return ctx.now.astimezone(ctx.timezone).date()
 
 
 def weekday(ctx, date):

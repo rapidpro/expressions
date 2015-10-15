@@ -2,6 +2,9 @@ package io.rapidpro.expressions.utils;
 
 import io.rapidpro.expressions.dates.DateStyle;
 import org.apache.commons.lang3.ArrayUtils;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
@@ -16,6 +19,8 @@ import java.util.Map;
  * Utility methods
  */
 public class ExpressionUtils {
+
+    protected static DateTimeFormatter JSON_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
      * Slices a list, Python style
@@ -118,5 +123,25 @@ public class ExpressionUtils {
             list.add(text.substring(start, i));
         }
         return list.toArray(new String[list.size()]);
+    }
+
+    /**
+     * Formats a time instant as ISO8601 in UTC with millisecond precision, e.g. "2014-10-03T09:41:12.790Z"
+     */
+    public static String formatJsonDate(Instant value) {
+        if (value == null) {
+            return null;
+        }
+        return JSON_DATETIME_FORMAT.format(value.atOffset(ZoneOffset.UTC));
+    }
+
+    /**
+     * Parses an ISO8601 formatted time instant from a string value
+     */
+    public static Instant parseJsonDate(String value) {
+        if (value == null) {
+            return null;
+        }
+        return LocalDateTime.parse(value, JSON_DATETIME_FORMAT).atOffset(ZoneOffset.UTC).toInstant();
     }
 }

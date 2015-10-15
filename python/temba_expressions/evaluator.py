@@ -12,7 +12,7 @@ from enum import Enum
 from . import conversions, EvaluationError
 from .dates import DateStyle, DateParser
 from .functions import FunctionManager, custom, excel
-from .utils import decimal_pow, urlquote
+from .utils import decimal_pow, urlquote, parse_json_date
 
 logger = logging.getLogger(__name__)
 
@@ -26,17 +26,20 @@ class EvaluationContext(object):
     """
     Evaluation context, i.e. variables and date options
     """
-    def __init__(self, variables=None, timezone=pytz.UTC, date_style=DateStyle.DAY_FIRST):
+    def __init__(self, variables=None, timezone=pytz.UTC, date_style=DateStyle.DAY_FIRST, now=None):
         self.variables = variables if variables is not None else {}
         self.timezone = timezone
         self.date_style = date_style
+        self.now = now if now else datetime.datetime.now(timezone)
 
     @classmethod
     def from_json(cls, json_obj):
         variables = json_obj['variables']
         timezone = pytz.timezone(json_obj['timezone'])
         date_style = DateStyle.DAY_FIRST if json_obj['date_style'] == 'day_first' else DateStyle.MONTH_FIRST
-        return EvaluationContext(variables, timezone, date_style)
+        now = parse_json_date(json_obj.get('now'))
+
+        return EvaluationContext(variables, timezone, date_style, now)
 
     def resolve_variable(self, path):
         return self._resolve_variable_in_container(self.variables, path.lower(), path)

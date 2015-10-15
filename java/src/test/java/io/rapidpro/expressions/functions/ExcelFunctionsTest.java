@@ -9,7 +9,6 @@ import org.threeten.bp.temporal.Temporal;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Map;
 
 import static io.rapidpro.expressions.functions.ExcelFunctions.*;
 import static org.hamcrest.Matchers.*;
@@ -24,14 +23,9 @@ public class ExcelFunctionsTest {
 
     @Before
     public void setup() {
-        Map<String, Object> date = new HashMap<>();
-        date.put("today", "08-14-2015");
-        date.put("now", "08-14-2015 10:38");
+        Instant now = Instant.from(ZonedDateTime.of(2015, 8, 14, 10, 38, 30, 123456789, ZoneId.of("Africa/Kigali")));
 
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("date", date);
-
-        m_context = new EvaluationContext(variables, ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST);
+        m_context = new EvaluationContext(new HashMap<String, Object>(), ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST, now);
     }
 
     @Test
@@ -228,12 +222,7 @@ public class ExcelFunctionsTest {
 
     @Test
     public void test_now() {
-        assertThat(now(m_context), is(ZonedDateTime.of(2015, 8, 14, 10, 38, 0, 0, ZoneId.of("Africa/Kigali"))));
-
-        // when context doesn't have variable, defaults to calculated value
-        EvaluationContext context = new EvaluationContext(new HashMap<String, Object>(), ZoneId.of("UTC"), DateStyle.DAY_FIRST);
-
-        assertThat(now(context), instanceOf(ZonedDateTime.class));
+        assertThat(now(m_context), is(ZonedDateTime.of(2015, 8, 14, 10, 38, 30, 123456789, ZoneId.of("Africa/Kigali"))));
     }
 
     @Test
@@ -257,11 +246,6 @@ public class ExcelFunctionsTest {
     @Test
     public void test_today() {
         assertThat(today(m_context), is(LocalDate.of(2015, 8, 14)));
-
-        // when context doesn't have variable, defaults to calculated value
-        EvaluationContext context = new EvaluationContext(new HashMap<String, Object>(), ZoneId.of("UTC"), DateStyle.DAY_FIRST);
-
-        assertThat(today(context), instanceOf(LocalDate.class));
     }
 
     @Test

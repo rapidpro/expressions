@@ -4,9 +4,7 @@ import com.google.gson.*;
 import io.rapidpro.expressions.dates.DateParser;
 import io.rapidpro.expressions.dates.DateStyle;
 import io.rapidpro.expressions.utils.ExpressionUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.*;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.lang.reflect.Type;
@@ -29,16 +27,27 @@ public class EvaluationContext {
 
     protected DateStyle m_dateStyle;
 
+    protected Instant m_now;
+
     public EvaluationContext() {
         this.m_variables = new HashMap<>();
         this.m_timezone = ZoneOffset.UTC;
         this.m_dateStyle = DateStyle.DAY_FIRST;
+        this.m_now = Instant.now();
     }
 
     public EvaluationContext(Map<String, Object> variables, ZoneId timezone, DateStyle dateStyle) {
         this.m_variables = variables;
         this.m_timezone = timezone;
         this.m_dateStyle = dateStyle;
+        this.m_now = Instant.now();
+    }
+
+    public EvaluationContext(Map<String, Object> variables, ZoneId timezone, DateStyle dateStyle, Instant now) {
+        this.m_variables = variables;
+        this.m_timezone = timezone;
+        this.m_dateStyle = dateStyle;
+        this.m_now = now;
     }
 
     public static EvaluationContext fromJson(String json) {
@@ -73,6 +82,10 @@ public class EvaluationContext {
 
     public void setDateStyle(DateStyle dateStyle) {
         m_dateStyle = dateStyle;
+    }
+
+    public Instant getNow() {
+        return m_now;
     }
 
     public DateTimeFormatter getDateFormatter(boolean incTime) {
@@ -132,13 +145,20 @@ public class EvaluationContext {
             ZoneId timezone = ZoneId.of(rootObj.get("timezone").getAsString());
             boolean dayFirst = rootObj.get("date_style").getAsString().equals("day_first");
             DateStyle dateStyle = dayFirst ? DateStyle.DAY_FIRST : DateStyle.MONTH_FIRST;
+            Instant now;
+
+            if (rootObj.has("now")) {
+                now = ExpressionUtils.parseJsonDate(rootObj.get("now").getAsString());
+            } else {
+                now = Instant.now();
+            }
 
             Map<String, Object> variables = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : varsObj.entrySet()) {
                 variables.put(entry.getKey(), handleNode(entry.getValue(), Object.class, context));
             }
 
-            return new EvaluationContext(variables, timezone, dateStyle);
+            return new EvaluationContext(variables, timezone, dateStyle, now);
         }
 
         public Object handleNode(JsonElement node, Type type, JsonDeserializationContext context) throws JsonParseException {

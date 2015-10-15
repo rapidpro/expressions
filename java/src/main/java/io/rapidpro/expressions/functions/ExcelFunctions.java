@@ -1,7 +1,6 @@
 package io.rapidpro.expressions.functions;
 
 import io.rapidpro.expressions.EvaluationContext;
-import io.rapidpro.expressions.EvaluationError;
 import io.rapidpro.expressions.evaluator.Conversions;
 import io.rapidpro.expressions.functions.annotations.BooleanDefault;
 import io.rapidpro.expressions.functions.annotations.IntegerDefault;
@@ -258,13 +257,7 @@ public class ExcelFunctions {
      * Returns the current date and time
      */
     public static ZonedDateTime now(EvaluationContext ctx) {
-        try {
-            // for consistency, take from the context if it's defined
-            return Conversions.toDateTime(ctx.resolveVariable("date.now"), ctx);
-        }
-        catch (EvaluationError ex) {
-            return ZonedDateTime.now(ctx.getTimezone());
-        }
+        return ctx.getNow().atZone(ctx.getTimezone());
     }
 
     /**
@@ -295,13 +288,7 @@ public class ExcelFunctions {
      * Returns the current date
      */
     public static LocalDate today(EvaluationContext ctx) {
-        try {
-            // for consistency, take from the context if it's defined
-            return Conversions.toDate(ctx.resolveVariable("date.today"), ctx);
-        }
-        catch (EvaluationError ex) {
-            return LocalDate.now(ctx.getTimezone());
-        }
+        return ctx.getNow().atZone(ctx.getTimezone()).toLocalDate();
     }
 
     /**

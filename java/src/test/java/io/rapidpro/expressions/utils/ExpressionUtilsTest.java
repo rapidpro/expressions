@@ -1,6 +1,9 @@
 package io.rapidpro.expressions.utils;
 
 import org.junit.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,5 +41,21 @@ public class ExpressionUtilsTest {
         assertThat(tokenize("this is a sentence"), arrayContaining("this", "is", "a", "sentence"));
         assertThat(tokenize("  hey  \t@ there  "), arrayContaining("hey", "there"));
         assertThat(tokenize("واحد اثنين ثلاثة"), arrayContaining("واحد", "اثنين", "ثلاثة"));
+    }
+
+    @Test
+    public void _parseJsonDate() {
+        Instant val = ZonedDateTime.of(2014, 10, 3, 1, 41, 12, 790000000, ZoneOffset.UTC).toInstant();
+
+        assertThat(parseJsonDate(null), is(nullValue()));
+        assertThat(parseJsonDate("2014-10-03T01:41:12.790Z"), is(val));
+    }
+
+    @Test
+    public void _formatJsonDate() {
+        Instant val = ZonedDateTime.of(2014, 10, 3, 1, 41, 12, 790000000, ZoneOffset.UTC).toInstant();
+
+        assertThat(formatJsonDate(null), is(nullValue()));
+        assertThat(formatJsonDate(val), is("2014-10-03T01:41:12.790Z"));
     }
 }
