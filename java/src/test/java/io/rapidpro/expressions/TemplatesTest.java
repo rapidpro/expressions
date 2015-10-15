@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
 /**
  * Template tests
  */
-public class ExpressionsTest {
+public class TemplatesTest {
 
     @Test
     public void templateTests() throws Exception {
@@ -26,19 +26,19 @@ public class ExpressionsTest {
                 .withAllowedTopLevels(new String[] {"channel", "contact", "date", "extra", "flow", "step"})
                 .build();
 
-        InputStream in = ExpressionsTest.class.getClassLoader().getResourceAsStream("template_tests.json");
+        InputStream in = TemplatesTest.class.getClassLoader().getResourceAsStream("template_tests.json");
 
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(EvaluationContext.class, new EvaluationContext.Deserializer());
         Gson gson = builder.create();
 
-        TemplateTest[] tests = gson.fromJson(new InputStreamReader(in), TemplateTest[].class);
+        TestDefinition[] tests = gson.fromJson(new InputStreamReader(in), TestDefinition[].class);
 
-        List<TemplateTest> failures = new ArrayList<>();
+        List<TestDefinition> failures = new ArrayList<>();
         long start = System.currentTimeMillis();
 
         // run the tests
-        for (TemplateTest test : tests) {
+        for (TestDefinition test : tests) {
             if (!test.run(evaluator)) {
                 failures.add(test);
             }
@@ -51,7 +51,7 @@ public class ExpressionsTest {
         if (!failures.isEmpty()) {
             System.out.println("Failed tests:");
 
-            for (TemplateTest test : failures) {
+            for (TestDefinition test : failures) {
                 System.out.println("========================================");
                 System.out.println("Template: " + test.template);
                 if (test.expectedOutput != null) {
@@ -68,7 +68,7 @@ public class ExpressionsTest {
         }
     }
 
-    protected class TemplateTest {
+    protected class TestDefinition {
         @SerializedName("template") String template;
         @SerializedName("context") EvaluationContext context;
         @SerializedName("url_encode") boolean urlEncode;
