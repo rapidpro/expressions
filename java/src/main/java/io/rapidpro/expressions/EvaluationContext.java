@@ -116,7 +116,7 @@ public class EvaluationContext {
 
         if (remainingPath != null && value != null) {
             if (!(value instanceof Map)) {
-                throw new RuntimeException("Context lookup into non-map container");
+                throw new EvaluationError("Undefined variable: " + originalPath);
             }
 
             return resolveVariableInContainer((Map<String, Object>) value, remainingPath, originalPath);

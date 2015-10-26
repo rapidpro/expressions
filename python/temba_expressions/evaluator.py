@@ -75,7 +75,7 @@ class EvaluationContext(object):
 
         if remaining_path is not None and value is not None:
             if not isinstance(value, dict):
-                raise ValueError("Context lookup into non-dict container")
+                raise EvaluationError("Undefined variable: %s" % original_path)
 
             return self._resolve_variable_in_container(value, remaining_path, original_path)
 

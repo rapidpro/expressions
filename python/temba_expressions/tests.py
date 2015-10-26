@@ -551,8 +551,12 @@ class TemplateTest(unittest.TestCase):
         start = int(round(clock() * 1000))
 
         for test in tests:
-            if not test.run(evaluator):
-                failures.append(test)
+            try:
+                if not test.run(evaluator):
+                    failures.append(test)
+            except Exception as e:
+                print "Exception whilst evaluating: %s" % test.template
+                raise e
 
         duration = int(round(clock() * 1000)) - start
 

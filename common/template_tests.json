@@ -635,6 +635,13 @@
     "output": "@contact.X",
     "errors": ["Undefined variable: contact.X"]
   },
+  { /* attempt to access non-dict as a container */
+    "template": "@contact.name.something",
+    "context": {"variables": {"contact": {"name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "@contact.name.something",
+    "errors": ["Undefined variable: contact.name.something"]
+  },
   {
     "template": "@(FOO())",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},

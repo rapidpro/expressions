@@ -39,8 +39,13 @@ public class TemplatesTest {
 
         // run the tests
         for (TestDefinition test : tests) {
-            if (!test.run(evaluator)) {
-                failures.add(test);
+            try {
+                if (!test.run(evaluator)) {
+                    failures.add(test);
+                }
+            } catch (Exception ex) {
+                System.out.println("Exception whilst evaluating: " + test.template);
+                throw ex;
             }
         }
 
