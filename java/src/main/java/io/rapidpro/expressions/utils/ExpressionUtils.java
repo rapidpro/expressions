@@ -10,10 +10,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility methods
@@ -145,5 +142,18 @@ public final class ExpressionUtils {
             return null;
         }
         return LocalDateTime.parse(value, JSON_DATETIME_FORMAT).atOffset(ZoneOffset.UTC).toInstant();
+    }
+
+    /**
+     * Returns a copy of the given map with lowercase keys
+     * @param map the map to convert
+     * @return copy of map with lowercase keys
+     */
+    public static <T> Map<String, T> toLowerCaseKeys(Map<String, T> map) {
+        Map<String, T> res = new HashMap<>();
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            res.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
+        return res;
     }
 }

@@ -69,7 +69,7 @@ public class EvaluationContext {
     }
 
     public void putVariable(String key, Object value) {
-        m_variables.put(key.toLowerCase(), value);
+        m_variables.put(key, value);
     }
 
     public ZoneId getTimezone() {
@@ -107,6 +107,9 @@ public class EvaluationContext {
             item = path;
             remainingPath = null;
         }
+
+        // copy of container with all lowercase keys
+        container = ExpressionUtils.toLowerCaseKeys(container);
 
         if (!container.containsKey(item)) {
             throw new EvaluationError("Undefined variable: " + originalPath);

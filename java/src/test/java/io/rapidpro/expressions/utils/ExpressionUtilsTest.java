@@ -7,6 +7,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.rapidpro.expressions.utils.ExpressionUtils.*;
 import static org.hamcrest.Matchers.*;
@@ -57,5 +59,14 @@ public class ExpressionUtilsTest {
 
         assertThat(formatJsonDate(null), is(nullValue()));
         assertThat(formatJsonDate(val), is("2014-10-03T01:41:12.790Z"));
+    }
+
+    @Test
+    public void _toLowercaseKeys() {
+        Map<String, String> map = new HashMap<>();
+        map.put("FOO", "1");
+        map.put("bAr", "2");
+
+        assertThat(toLowerCaseKeys(map), allOf(hasEntry("foo", "1"), hasEntry("bar", "2")));
     }
 }

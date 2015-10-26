@@ -33,18 +33,11 @@
 
   /* variables */
 
-  {
-    "template": "Hi @CONTACT",
-    "context": {"variables": {"contact": {"*": "Bob", "name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
+  { /* case-insensitive */
+    "template": "Hi @CONTACT @contact.name",
+    "context": {"variables": {"ConTact": {"*": "Bob", "NAME": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "Hi Bob",
-    "errors": []
-  },
-  {
-    "template": "Hi @contact.name",
-    "context": {"variables": {"contact": {"*": "Bob", "name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
-    "url_encode": false,
-    "output": "Hi Bob",
+    "output": "Hi Bob Bob",
     "errors": []
   },
   {
