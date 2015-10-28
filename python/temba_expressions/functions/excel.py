@@ -4,9 +4,9 @@ import random
 
 from datetime import date as _date, time as _time
 from dateutil.relativedelta import relativedelta
-from decimal import Decimal, ROUND_FLOOR
+from decimal import Decimal, ROUND_FLOOR, ROUND_HALF_UP, ROUND_DOWN, ROUND_UP
 from temba_expressions import conversions
-from temba_expressions.utils import decimal_pow
+from temba_expressions.utils import decimal_pow, decimal_round
 
 
 # =============================== Text ===============================
@@ -47,15 +47,9 @@ def fixed(ctx, number, decimals=2, no_commas=False):
     """
     Formats the given number in decimal format using a period and commas
     """
-    number = conversions.to_decimal(number, ctx)
-    decimals = conversions.to_integer(decimals, ctx)
-
-    if decimals < 0:
-        number = round(number, decimals)
-        decimals = 0
-
-    format_str = '{:.%df}' % decimals if no_commas else '{:,.%df}' % decimals
-    return format_str.format(number)
+    value = _round(ctx, number, decimals)
+    format_str = '{:f}' if no_commas else '{:,f}'
+    return format_str.format(value)
 
 
 def left(ctx, text, num_chars):
@@ -330,6 +324,36 @@ def randbetween(ctx, bottom, top):
     return random.randint(bottom, top)
 
 
+def _round(ctx, number, num_digits):
+    """
+    Rounds a number to a specified number of digits
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_HALF_UP)
+
+
+def rounddown(ctx, number, num_digits):
+    """
+    Rounds a number down, toward zero
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_DOWN)
+
+
+def roundup(ctx, number, num_digits):
+    """
+    Rounds a number up, away from zero
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_UP)
+
+
 def _sum(ctx, *args):
     """
     Returns the sum of all arguments
@@ -338,6 +362,13 @@ def _sum(ctx, *args):
     for arg in args:
         result += conversions.to_decimal(arg, ctx)
     return result
+
+
+def trunc(ctx, number):
+    """
+    Truncates a number to an integer by removing the fractional part of the number
+    """
+    return conversions.to_integer(conversions.to_decimal(number, ctx).to_integral_value(ROUND_DOWN), ctx)
 
 
 # =============================== Logical ===============================
