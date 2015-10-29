@@ -10,6 +10,7 @@ import unittest
 
 from datetime import datetime, date, time
 from decimal import Decimal
+from itertools import ifilter
 from time import clock
 from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
@@ -324,7 +325,30 @@ class FunctionsTest(unittest.TestCase):
 
     def test_build_listing(self):
         listing = DEFAULT_FUNCTION_MANAGER.build_listing()
-        self.assertEqual(listing[0], {'name': 'ABS', 'description': "Returns the absolute value of a number"})
+
+        def by_name(name):
+            return next(ifilter(lambda f: f['name'] == name, listing), None)
+
+        # check function with no params
+        self.assertEqual(by_name('NOW'), {'name': 'NOW',
+                                          'description': "Returns the current date and time",
+                                          'params': []})
+
+        # check function with no defaults
+        self.assertEqual(by_name('ABS'), {'name': 'ABS',
+                                          'description': "Returns the absolute value of a number",
+                                          'params': [{'name': 'number', 'optional': False, 'vararg': False}]})
+
+        # check function with defaults
+        self.assertEqual(by_name('WORD_COUNT'), {'name': 'WORD_COUNT',
+                                                 'description': "Returns the number of words in the given text string",
+                                                 'params': [{'name': 'text', 'optional': False, 'vararg': False},
+                                                            {'name': 'by_spaces', 'optional': True, 'vararg': False}]})
+
+        # check function with varargs
+        self.assertEqual(by_name('SUM'), {'name': 'SUM',
+                                          'description': "Returns the sum of all arguments",
+                                          'params': [{'name': 'number', 'optional': False, 'vararg': True}]})
     
     def test_excel(self):
         # text functions
