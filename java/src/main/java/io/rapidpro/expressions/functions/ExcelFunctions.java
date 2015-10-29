@@ -392,6 +392,36 @@ public class ExcelFunctions {
     }
 
     /**
+     * Rounds a number to a specified number of digits
+     */
+    public static BigDecimal round(EvaluationContext ctx, Object number, Object numDigits) {
+        BigDecimal _number = Conversions.toDecimal(number, ctx);
+        int _numDigits = Conversions.toInteger(numDigits, ctx);
+
+        return ExpressionUtils.decimalRound(_number, _numDigits, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Rounds a number down, toward zero
+     */
+    public static BigDecimal rounddown(EvaluationContext ctx, Object number, Object numDigits) {
+        BigDecimal _number = Conversions.toDecimal(number, ctx);
+        int _numDigits = Conversions.toInteger(numDigits, ctx);
+
+        return ExpressionUtils.decimalRound(_number, _numDigits, RoundingMode.DOWN);
+    }
+
+    /**
+     * Rounds a number up, away from zero
+     */
+    public static BigDecimal roundup(EvaluationContext ctx, Object number, Object numDigits) {
+        BigDecimal _number = Conversions.toDecimal(number, ctx);
+        int _numDigits = Conversions.toInteger(numDigits, ctx);
+
+        return ExpressionUtils.decimalRound(_number, _numDigits, RoundingMode.UP);
+    }
+
+    /**
      * Returns the sum of all arguments
      */
     public static BigDecimal sum(EvaluationContext ctx, Object... args) {
@@ -404,6 +434,13 @@ public class ExcelFunctions {
             result = result.add(Conversions.toDecimal(arg, ctx));
         }
         return result;
+    }
+
+    /**
+     * Truncates a number to an integer by removing the fractional part of the number
+     */
+    public static int trunc(EvaluationContext ctx, Object number) {
+        return Conversions.toDecimal(number, ctx).setScale(0, RoundingMode.DOWN).intValue();
     }
 
     /************************************************************************************

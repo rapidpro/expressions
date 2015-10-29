@@ -18,13 +18,13 @@ def decimal_pow(number, power):
     return Decimal(math.pow(number, power))
 
 
-def decimal_round(number, ndigits, rounding=ROUND_HALF_UP):
+def decimal_round(number, num_digits, rounding=ROUND_HALF_UP):
     """
     Rounding for decimals with support for negative digits
     """
-    exp = Decimal(10) ** -ndigits
+    exp = Decimal(10) ** -num_digits
 
-    if ndigits >= 0:
+    if num_digits >= 0:
         return number.quantize(exp, rounding)
     else:
         return exp * (number / exp).to_integral_value(rounding)

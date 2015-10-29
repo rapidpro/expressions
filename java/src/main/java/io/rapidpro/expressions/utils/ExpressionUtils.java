@@ -9,6 +9,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -58,6 +59,19 @@ public final class ExpressionUtils {
      */
     public static BigDecimal decimalPow(BigDecimal number, BigDecimal power) {
         return new BigDecimal(Math.pow(number.doubleValue(), power.doubleValue()));
+    }
+
+    /**
+     * Rounding for decimals with support for negative digits
+     */
+    public static BigDecimal decimalRound(BigDecimal number, int numDigits, RoundingMode rounding) {
+        BigDecimal rounded = number.setScale(numDigits, rounding);
+
+        if (numDigits < 0) {
+            rounded = rounded.setScale(0, BigDecimal.ROUND_UNNECESSARY);
+        }
+
+        return rounded;
     }
 
     /**

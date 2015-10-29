@@ -275,8 +275,9 @@ public class ExcelFunctionsTest {
 
     @Test
     public void test_int() {
-        assertThat(_int(m_context, new BigDecimal(8.9)), is(8));
-        assertThat(_int(m_context, new BigDecimal(-8.9)), is(-9));
+        assertThat(_int(m_context, "8.9"), is(8));
+        assertThat(_int(m_context, "-8.9"), is(-9));
+        assertThat(trunc(m_context, "1234.5678"), is(1234));
     }
 
     @Test
@@ -330,6 +331,37 @@ public class ExcelFunctionsTest {
     }
 
     @Test
+    public void test_round() {
+        assertThat(round(m_context, "2.15", 1), is(new BigDecimal("2.2")));
+        assertThat(round(m_context, "2.149", 1), is(new BigDecimal("2.1")));
+        assertThat(round(m_context, "-1.475", 2), is(new BigDecimal("-1.48")));
+        assertThat(round(m_context, "21.5", "-1"), is(new BigDecimal(20)));
+        assertThat(round(m_context, "626.3", "-3"), is(new BigDecimal(1000)));
+        assertThat(round(m_context, "1.98", "-1"), is(new BigDecimal(0)));
+        assertThat(round(m_context, "-50.55", "-2"), is(new BigDecimal(-100)));
+    }
+
+    @Test
+    public void test_rounddown() {
+        assertThat(rounddown(m_context, "3.2", 0), is(new BigDecimal("3")));
+        assertThat(rounddown(m_context, "76.9", 0), is(new BigDecimal("76")));
+        assertThat(rounddown(m_context, "3.14159", 3), is(new BigDecimal("3.141")));
+        assertThat(rounddown(m_context, "-3.14159", "1"), is(new BigDecimal("-3.1")));
+        assertThat(rounddown(m_context, "31415.92654", "-2"), is(new BigDecimal(31400)));
+        assertThat(rounddown(m_context, "31499", "-2"), is(new BigDecimal(31400)));
+    }
+
+    @Test
+    public void test_roundup() {
+        assertThat(roundup(m_context, "3.2", 0), is(new BigDecimal("4")));
+        assertThat(roundup(m_context, "76.9", 0), is(new BigDecimal("77")));
+        assertThat(roundup(m_context, "3.14159", 3), is(new BigDecimal("3.142")));
+        assertThat(roundup(m_context, "-3.14159", "1"), is(new BigDecimal("-3.2")));
+        assertThat(roundup(m_context, "31415.92654", "-2"), is(new BigDecimal(31500)));
+        assertThat(roundup(m_context, "31499", "-2"), is(new BigDecimal(31500)));
+    }
+
+    @Test
     public void test_sum() {
         assertThat(sum(m_context, 1), is(new BigDecimal(1)));
         assertThat(sum(m_context, 1, 2), is(new BigDecimal(3)));
@@ -339,6 +371,14 @@ public class ExcelFunctionsTest {
     @Test(expected = RuntimeException.class)
     public void test_sum_noArgs() {
         sum(m_context);
+    }
+
+    @Test
+    public void test_trunc() {
+        assertThat(trunc(m_context, "8.9"), is(8));
+        assertThat(trunc(m_context, "-8.9"), is(-8));
+        assertThat(trunc(m_context, "0.45"), is(0));
+        assertThat(trunc(m_context, "1234.5678"), is(1234));
     }
 
     /************************************************************************************
