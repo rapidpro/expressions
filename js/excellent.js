@@ -71,6 +71,7 @@
             if (ch === ')') {
                 skipChar = true;
                 neededParentheses.push('(');
+                neededParentheses.push('(');
             }
 
             if (skipChar) {

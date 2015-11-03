@@ -66,15 +66,15 @@ describe("get auto-complete context", function() {
     });
 
     it("matches the function missing balanced parentheses", function() {
-        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))")).toBe('SUM');
-        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)")).toBe('ABS');
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)")).toBe('SUM');
     });
 
     it("ignores trailing spaces in function parameters", function () {
         expect(parser.autoCompleteContext("Hi @(SUM( ")).toBe('SUM');
         expect(parser.autoCompleteContext("Hi @(SUM(   ")).toBe('SUM');
-        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))  ")).toBe('SUM');
-        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)  ")).toBe('ABS');
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))  ")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)  ")).toBe('SUM');
     });
 
     it("matches the variable in function parameters", function() {
@@ -89,10 +89,10 @@ describe("get auto-complete context", function() {
         expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added,  ")).toBe('SUM');
     });
 
-    it('matches the function out of balanced parentheses', function(){
-        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, step)")).toBe('SUM');
-        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value)")).toBe('ABS');
-        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value))")).toBe('SUM');
+    it('ignore the function with balanced parentheses', function(){
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, step)")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value)")).toBe('SUM');
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value))")).toBeNull();
     });
 
 });
