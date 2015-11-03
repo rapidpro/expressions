@@ -6,7 +6,7 @@ import pytz
 import regex
 import urllib
 
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -16,6 +16,18 @@ def decimal_pow(number, power):
     Pow for two decimals
     """
     return Decimal(math.pow(number, power))
+
+
+def decimal_round(number, num_digits, rounding=ROUND_HALF_UP):
+    """
+    Rounding for decimals with support for negative digits
+    """
+    exp = Decimal(10) ** -num_digits
+
+    if num_digits >= 0:
+        return number.quantize(exp, rounding)
+    else:
+        return exp * (number / exp).to_integral_value(rounding)
 
 
 def urlquote(text):

@@ -10,6 +10,7 @@ import unittest
 
 from datetime import datetime, date, time
 from decimal import Decimal
+from itertools import ifilter
 from time import clock
 from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
@@ -324,7 +325,30 @@ class FunctionsTest(unittest.TestCase):
 
     def test_build_listing(self):
         listing = DEFAULT_FUNCTION_MANAGER.build_listing()
-        self.assertEqual(listing[0], {'name': 'ABS', 'description': "Returns the absolute value of a number"})
+
+        def by_name(name):
+            return next(ifilter(lambda f: f['name'] == name, listing), None)
+
+        # check function with no params
+        self.assertEqual(by_name('NOW'), {'name': 'NOW',
+                                          'description': "Returns the current date and time",
+                                          'params': []})
+
+        # check function with no defaults
+        self.assertEqual(by_name('ABS'), {'name': 'ABS',
+                                          'description': "Returns the absolute value of a number",
+                                          'params': [{'name': 'number', 'optional': False, 'vararg': False}]})
+
+        # check function with defaults
+        self.assertEqual(by_name('WORD_COUNT'), {'name': 'WORD_COUNT',
+                                                 'description': "Returns the number of words in the given text string",
+                                                 'params': [{'name': 'text', 'optional': False, 'vararg': False},
+                                                            {'name': 'by_spaces', 'optional': True, 'vararg': False}]})
+
+        # check function with varargs
+        self.assertEqual(by_name('SUM'), {'name': 'SUM',
+                                          'description': "Returns the sum of all arguments",
+                                          'params': [{'name': 'number', 'optional': False, 'vararg': True}]})
     
     def test_excel(self):
         # text functions
@@ -427,8 +451,9 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual(excel._abs(self.context, 1), 1)
         self.assertEqual(excel._abs(self.context, -1), 1)
 
-        self.assertEqual(excel._int(self.context, Decimal('8.9')), 8)
-        self.assertEqual(excel._int(self.context, Decimal('-8.9')), -9)
+        self.assertEqual(excel._int(self.context, '8.9'), 8)
+        self.assertEqual(excel._int(self.context, '-8.9'), -9)
+        self.assertEqual(excel._int(self.context, '1234.5678'), 1234)
 
         self.assertEqual(excel._max(self.context, 1), 1)
         self.assertEqual(excel._max(self.context, 1, 3, 2, -5), 3)
@@ -446,8 +471,35 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual(excel._power(self.context, '4', '2'), Decimal('16'))
         self.assertEqual(excel._power(self.context, '4', '0.5'), Decimal('2'))
 
+        self.assertEqual(excel._round(self.context, '2.15', 1), Decimal('2.2'))
+        self.assertEqual(excel._round(self.context, '2.149', 1), Decimal('2.1'))
+        self.assertEqual(excel._round(self.context, '-1.475', 2), Decimal('-1.48'))
+        self.assertEqual(excel._round(self.context, '21.5', '-1'), Decimal(20))
+        self.assertEqual(excel._round(self.context, '626.3', '-3'), Decimal(1000))
+        self.assertEqual(excel._round(self.context, '1.98', '-1'), Decimal(0))
+        self.assertEqual(excel._round(self.context, '-50.55', '-2'), Decimal(-100))
+
+        self.assertEqual(excel.rounddown(self.context, '3.2', 0), Decimal('3'))
+        self.assertEqual(excel.rounddown(self.context, '76.9', 0), Decimal('76'))
+        self.assertEqual(excel.rounddown(self.context, '3.14159', 3), Decimal('3.141'))
+        self.assertEqual(excel.rounddown(self.context, '-3.14159', '1'), Decimal('-3.1'))
+        self.assertEqual(excel.rounddown(self.context, '31415.92654', '-2'), Decimal(31400))
+        self.assertEqual(excel.rounddown(self.context, '31499', '-2'), Decimal(31400))
+
+        self.assertEqual(excel.roundup(self.context, '3.2', 0), Decimal('4'))
+        self.assertEqual(excel.roundup(self.context, '76.9', 0), Decimal('77'))
+        self.assertEqual(excel.roundup(self.context, '3.14159', 3), Decimal('3.142'))
+        self.assertEqual(excel.roundup(self.context, '-3.14159', '1'), Decimal('-3.2'))
+        self.assertEqual(excel.roundup(self.context, '31415.92654', '-2'), Decimal(31500))
+        self.assertEqual(excel.roundup(self.context, '31499', '-2'), Decimal(31500))
+
         self.assertEqual(excel._sum(self.context, 1), 1)
         self.assertEqual(excel._sum(self.context, 1, 2, 3), 6)
+
+        self.assertEqual(excel.trunc(self.context, '8.9'), 8)
+        self.assertEqual(excel.trunc(self.context, '-8.9'), -8)
+        self.assertEqual(excel.trunc(self.context, '0.45'), 0)
+        self.assertEqual(excel.trunc(self.context, '1234.5678'), 1234)
 
         # logical functions
         self.assertEqual(excel._and(self.context, False), False)
@@ -551,8 +603,12 @@ class TemplateTest(unittest.TestCase):
         start = int(round(clock() * 1000))
 
         for test in tests:
-            if not test.run(evaluator):
-                failures.append(test)
+            try:
+                if not test.run(evaluator):
+                    failures.append(test)
+            except Exception as e:
+                print "Exception whilst evaluating: %s" % test.template
+                raise e
 
         duration = int(round(clock() * 1000)) - start
 

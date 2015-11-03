@@ -4,9 +4,9 @@ import random
 
 from datetime import date as _date, time as _time
 from dateutil.relativedelta import relativedelta
-from decimal import Decimal, ROUND_FLOOR
+from decimal import Decimal, ROUND_FLOOR, ROUND_HALF_UP, ROUND_DOWN, ROUND_UP
 from temba_expressions import conversions
-from temba_expressions.utils import decimal_pow
+from temba_expressions.utils import decimal_pow, decimal_round
 
 
 # =============================== Text ===============================
@@ -33,12 +33,12 @@ def code(ctx, text):
     return _unicode(ctx, text)  # everything is unicode
 
 
-def concatenate(ctx, *args):
+def concatenate(ctx, *text):
     """
     Joins text strings into one text string
     """
     result = ''
-    for arg in args:
+    for arg in text:
         result += conversions.to_string(arg, ctx)
     return result
 
@@ -47,15 +47,9 @@ def fixed(ctx, number, decimals=2, no_commas=False):
     """
     Formats the given number in decimal format using a period and commas
     """
-    number = conversions.to_decimal(number, ctx)
-    decimals = conversions.to_integer(decimals, ctx)
-
-    if decimals < 0:
-        number = round(number, decimals)
-        decimals = 0
-
-    format_str = '{:.%df}' % decimals if no_commas else '{:,.%df}' % decimals
-    return format_str.format(number)
+    value = _round(ctx, number, decimals)
+    format_str = '{:f}' if no_commas else '{:,f}'
+    return format_str.format(value)
 
 
 def left(ctx, text, num_chars):
@@ -274,24 +268,24 @@ def _int(ctx, number):
     return conversions.to_integer(conversions.to_decimal(number, ctx).to_integral_value(ROUND_FLOOR), ctx)
 
 
-def _max(ctx, *args):
+def _max(ctx, *number):
     """
     Returns the maximum value of all arguments
     """
-    result = conversions.to_decimal(args[0], ctx)
-    for arg in args[1:]:
+    result = conversions.to_decimal(number[0], ctx)
+    for arg in number[1:]:
         arg = conversions.to_decimal(arg, ctx)
         if arg > result:
             result = arg
     return result
 
 
-def _min(ctx, *args):
+def _min(ctx, *number):
     """
     Returns the minimum value of all arguments
     """
-    result = conversions.to_decimal(args[0], ctx)
-    for arg in args[1:]:
+    result = conversions.to_decimal(number[0], ctx)
+    for arg in number[1:]:
         arg = conversions.to_decimal(arg, ctx)
         if arg < result:
             result = arg
@@ -330,23 +324,60 @@ def randbetween(ctx, bottom, top):
     return random.randint(bottom, top)
 
 
-def _sum(ctx, *args):
+def _round(ctx, number, num_digits):
+    """
+    Rounds a number to a specified number of digits
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_HALF_UP)
+
+
+def rounddown(ctx, number, num_digits):
+    """
+    Rounds a number down, toward zero
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_DOWN)
+
+
+def roundup(ctx, number, num_digits):
+    """
+    Rounds a number up, away from zero
+    """
+    number = conversions.to_decimal(number, ctx)
+    num_digits = conversions.to_integer(num_digits, ctx)
+
+    return decimal_round(number, num_digits, ROUND_UP)
+
+
+def _sum(ctx, *number):
     """
     Returns the sum of all arguments
     """
     result = Decimal(0)
-    for arg in args:
+    for arg in number:
         result += conversions.to_decimal(arg, ctx)
     return result
 
 
+def trunc(ctx, number):
+    """
+    Truncates a number to an integer by removing the fractional part of the number
+    """
+    return conversions.to_integer(conversions.to_decimal(number, ctx).to_integral_value(ROUND_DOWN), ctx)
+
+
 # =============================== Logical ===============================
 
-def _and(ctx, *args):
+def _and(ctx, *logical):
     """
     Returns TRUE if and only if all its arguments evaluate to TRUE
     """
-    for arg in args:
+    for arg in logical:
         if not conversions.to_boolean(arg, ctx):
             return False
     return True
@@ -366,11 +397,11 @@ def _if(ctx, logical_test, value_if_true=0, value_if_false=False):
     return value_if_true if conversions.to_boolean(logical_test, ctx) else value_if_false
 
 
-def _or(ctx, *args):
+def _or(ctx, *logical):
     """
     Returns TRUE if any argument is TRUE
     """
-    for arg in args:
+    for arg in logical:
         if conversions.to_boolean(arg, ctx):
             return True
     return False

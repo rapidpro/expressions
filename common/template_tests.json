@@ -33,18 +33,11 @@
 
   /* variables */
 
-  {
-    "template": "Hi @CONTACT",
-    "context": {"variables": {"contact": {"*": "Bob", "name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
+  { /* case-insensitive */
+    "template": "Hi @CONTACT @contact.name",
+    "context": {"variables": {"ConTact": {"*": "Bob", "NAME": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "Hi Bob",
-    "errors": []
-  },
-  {
-    "template": "Hi @contact.name",
-    "context": {"variables": {"contact": {"*": "Bob", "name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
-    "url_encode": false,
-    "output": "Hi Bob",
+    "output": "Hi Bob Bob",
     "errors": []
   },
   {
@@ -473,6 +466,27 @@
     "errors": ["Error calling function RIGHT with arguments \"err\", -1"]
   },
   {
+    "template": "@(ROUND(2.15, 1)) @(ROUND(2.149, 1)) @(ROUND(-1.475, 2)) @(ROUND(21.5, -1)) @(ROUND(626.3, -3)) @(ROUND(1.98, -1)) @(ROUND(-50.55, -2))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "2.2 2.1 -1.48 20 1000 0 -100",
+    "errors": []
+  },
+  {
+    "template": "@(ROUNDDOWN(3.2, 0)) @(ROUNDDOWN(76.9, 0)) @(ROUNDDOWN(3.14159, 3)) @(ROUNDDOWN(-3.14159, 1)) @(ROUNDDOWN(31415.92654, -2)) @(ROUNDDOWN(31499, -2))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "3 76 3.141 -3.1 31400 31400",
+    "errors": []
+  },
+  {
+    "template": "@(ROUNDUP(3.2, 0)) @(ROUNDUP(76.9, 0)) @(ROUNDUP(3.14159, 3)) @(ROUNDUP(-3.14159, 1)) @(ROUNDUP(31415.92654, -2)) @(ROUNDUP(31499, -2))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "4 77 3.142 -3.2 31500 31500",
+    "errors": []
+  },
+  {
     "template": "@(SECOND(\"10-9-2015 13:45:23\")) @(SECOND(\"Sep 10th 2:30PM\"))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
@@ -519,6 +533,13 @@
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
     "output": "TRUE",
+    "errors": []
+  },
+  {
+    "template": "@(TRUNC(8.9)) @(TRUNC(-8.9)) @(TRUNC(0.45))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "8 -8 0",
     "errors": []
   },
   {
@@ -634,6 +655,13 @@
     "url_encode": false,
     "output": "@contact.X",
     "errors": ["Undefined variable: contact.X"]
+  },
+  { /* attempt to access non-dict as a container */
+    "template": "@contact.name.something",
+    "context": {"variables": {"contact": {"name": "Bob"}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "@contact.name.something",
+    "errors": ["Undefined variable: contact.name.something"]
   },
   {
     "template": "@(FOO())",

@@ -43,14 +43,7 @@ class FunctionManager(object):
         if func is None:
             raise EvaluationError("Undefined function: %s" % name)
 
-        args, varargs, keywords, defaults = inspect.getargspec(func)
-
-        # build a mapping from argument names to their default values, if any:
-        if defaults is None:
-            defaults = {}
-        else:
-            defaulted_args = args[-len(defaults):]
-            defaults = {name: val for name, val in zip(defaulted_args, defaults)}
+        args, varargs, defaults = self._get_arg_spec(func)
 
         call_args = []
         passed_args = list(arguments)
@@ -93,5 +86,35 @@ class FunctionManager(object):
         """
         Builds a listing of all functions sorted A-Z, with their names and descriptions
         """
-        listing = [{'name': name.upper(), 'description': f.__doc__.strip()} for name, f in self._functions.iteritems()]
+        def func_entry(name, func):
+            args, varargs, defaults = self._get_arg_spec(func)
+
+            # add regular arguments
+            params = [{'name': unicode(a), 'optional': a in defaults, 'vararg': False} for a in args if a != 'ctx']
+
+            # add possible variable argument
+            if varargs:
+                params += [{'name': unicode(varargs), 'optional': False, 'vararg': True}]
+
+            return {'name': unicode(name.upper()),
+                    'description': unicode(func.__doc__).strip(),
+                    'params': params}
+
+        listing = [func_entry(f_name, f) for f_name, f in self._functions.iteritems()]
         return sorted(listing, key=lambda l: l['name'])
+
+    @staticmethod
+    def _get_arg_spec(func):
+        """
+        Gets the argument spec of the given function, returning defaults as a dict of param names to values
+        """
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+
+        # build a mapping from argument names to their default values, if any:
+        if defaults is None:
+            defaults = {}
+        else:
+            defaulted_args = args[-len(defaults):]
+            defaults = {name: val for name, val in zip(defaulted_args, defaults)}
+
+        return args, varargs, defaults

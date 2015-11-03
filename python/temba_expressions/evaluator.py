@@ -45,7 +45,7 @@ class EvaluationContext(object):
         return self._resolve_variable_in_container(self.variables, path.lower(), path)
 
     def put_variable(self, key, value):
-        self.variables[key.lower()] = value
+        self.variables[key] = value
 
     def get_date_format(self, inc_time):
         if self.date_style == DateStyle.DAY_FIRST:
@@ -68,6 +68,9 @@ class EvaluationContext(object):
             item = path
             remaining_path = None
 
+        # copy of container with all lowercase keys
+        container = {k.lower(): v for k, v in container.iteritems()}
+
         if item not in container:
             raise EvaluationError("Undefined variable: %s" % original_path)
 
@@ -75,7 +78,7 @@ class EvaluationContext(object):
 
         if remaining_path is not None and value is not None:
             if not isinstance(value, dict):
-                raise ValueError("Context lookup into non-dict container")
+                raise EvaluationError("Undefined variable: %s" % original_path)
 
             return self._resolve_variable_in_container(value, remaining_path, original_path)
 

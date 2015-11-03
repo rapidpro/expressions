@@ -9,11 +9,9 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility methods
@@ -61,6 +59,19 @@ public final class ExpressionUtils {
      */
     public static BigDecimal decimalPow(BigDecimal number, BigDecimal power) {
         return new BigDecimal(Math.pow(number.doubleValue(), power.doubleValue()));
+    }
+
+    /**
+     * Rounding for decimals with support for negative digits
+     */
+    public static BigDecimal decimalRound(BigDecimal number, int numDigits, RoundingMode rounding) {
+        BigDecimal rounded = number.setScale(numDigits, rounding);
+
+        if (numDigits < 0) {
+            rounded = rounded.setScale(0, BigDecimal.ROUND_UNNECESSARY);
+        }
+
+        return rounded;
     }
 
     /**
@@ -145,5 +156,18 @@ public final class ExpressionUtils {
             return null;
         }
         return LocalDateTime.parse(value, JSON_DATETIME_FORMAT).atOffset(ZoneOffset.UTC).toInstant();
+    }
+
+    /**
+     * Returns a copy of the given map with lowercase keys
+     * @param map the map to convert
+     * @return copy of map with lowercase keys
+     */
+    public static <T> Map<String, T> toLowerCaseKeys(Map<String, T> map) {
+        Map<String, T> res = new HashMap<>();
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            res.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
+        return res;
     }
 }

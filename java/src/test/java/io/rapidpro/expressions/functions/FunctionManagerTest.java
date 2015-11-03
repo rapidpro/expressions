@@ -58,7 +58,6 @@ public class FunctionManagerTest {
         List<FunctionManager.FunctionDescriptor> listing = manager.buildListing();
 
         assertThat(listing.get(0).getName(), is("BAR"));
-        assertThat(listing.get(0).getDescription(), is(nullValue()));  // not yet supported
     }
 
     public static class TestFunctions {

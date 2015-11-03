@@ -124,15 +124,15 @@ public class FunctionManager {
     }
 
     /**
-     * Builds a listing of all functions sorted A-Z, with their names and descriptions
+     * Builds a listing of all functions sorted A-Z. Unlike the Python port, this only returns function names as Java
+     * doesn't so easily support reading of docstrings and Java 7 doesn't provide access to parameter names.
      * @return the function listing
      */
     public List<FunctionDescriptor> buildListing() {
         List<FunctionDescriptor> listing = new ArrayList<>();
 
         for (Map.Entry<String, Method> entry : m_functions.entrySet()) {
-            // TODO get description from annotation? Javadoc plugin task?
-            FunctionDescriptor descriptor = new FunctionDescriptor(entry.getKey().toUpperCase(), null);
+            FunctionDescriptor descriptor = new FunctionDescriptor(entry.getKey().toUpperCase());
             listing.add(descriptor);
         }
 
@@ -148,19 +148,13 @@ public class FunctionManager {
 
     public static class FunctionDescriptor {
         protected String m_name;
-        protected String m_description;
 
-        public FunctionDescriptor(String name, String description) {
+        public FunctionDescriptor(String name) {
             m_name = name;
-            m_description = description;
         }
 
         public String getName() {
             return m_name;
-        }
-
-        public String getDescription() {
-            return m_description;
         }
     }
 }
