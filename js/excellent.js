@@ -53,6 +53,7 @@
         var fragment = "";
         var skipChar = false;
         var neededParentheses = [];
+        var inQuotes = false;
 
         for (var pos = partialExpression.length - 1; pos >= 0; pos--) {
             var ch = partialExpression[pos];
@@ -68,14 +69,18 @@
                 }
             }
 
-            if (ch === ')') {
+            if (ch === ')' && !inQuotes) {
                 skipChar = true;
                 neededParentheses.push('(');
                 neededParentheses.push('(');
             }
 
+            if (ch === '"') {
+                inQuotes = !inQuotes;
+            }
+
             if (skipChar) {
-                if (ch === '(') {
+                if (ch === '(' && !inQuotes) {
                     if (neededParentheses[neededParentheses.length - 1] == '(') {
                         neededParentheses.pop();
                     }
@@ -86,7 +91,7 @@
                 }
             }
 
-            if (skipChar || (ch === '(' && fragment == '')) {
+            if (skipChar || inQuotes || (ch === '(' && fragment == '')) {
                 continue;
             }
 

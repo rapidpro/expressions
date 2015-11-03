@@ -95,4 +95,9 @@ describe("get auto-complete context", function() {
         expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value))")).toBeNull();
     });
 
+    it('ignore string literal in parameters', function () {
+        expect(parser.autoCompleteContext('Hi @(SUM(contact.date_added, "foo ( bar",  step)')).toBeNull();
+        expect(parser.autoCompleteContext('Hi @(SUM(contact.date_added, "foo ( bar", ABS(step.value)')).toBe('SUM');
+    });
+
 });
