@@ -50,20 +50,54 @@
             return null;
         }
 
-        var identifier = "";
-        
+        var fragment = "";
+        var skipChar = false;
+        var neededParentheses = [];
+
         for (var pos = partialExpression.length - 1; pos >= 0; pos--) {
             var ch = partialExpression[pos];
-            if (isWordChar(ch) || ch === '.') {
-                identifier = ch + identifier;
+
+            if (ch === ' ') {
+                skipChar = true;
             }
-            else {
+
+            if (ch === ',') {
+                skipChar = true;
+                if (neededParentheses[neededParentheses.length - 1] != '(') {
+                    neededParentheses.push('(');
+                }
+            }
+
+            if (ch === ')') {
+                skipChar = true;
+                neededParentheses.push('(');
+            }
+
+            if (skipChar) {
+                if (ch === '(') {
+                    if (neededParentheses[neededParentheses.length - 1] == '(') {
+                        neededParentheses.pop();
+                    }
+
+                    if (neededParentheses.length == 0) {
+                        skipChar = false;
+                    }
+                }
+            }
+
+            if (skipChar || (ch === '(' && fragment == '')) {
+                continue;
+            }
+
+            if (isWordChar(ch) || ch === '.') {
+                fragment = ch + fragment;
+            } else {
                 break;
             }
         }
 
-        if (identifier.match(/[A-Za-z][\w]*(\.[\w]+)*/)) {
-            return identifier;
+        if (fragment.match(/[A-Za-z][\w]*(\.[\w]+)*/)) {
+            return fragment;
         }
         else {
             return null;
@@ -258,7 +292,7 @@
      * Determines whether the given character is a word character, i.e. \w in a regex
      */
     function isWordChar(ch) {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_'; 
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_';
     }
 
 }(window.excellent = window.excellent || {}));
