@@ -57,6 +57,10 @@ describe("get auto-complete context", function() {
         expect(parser.autoCompleteContext("Hi @(contact.age")).toBe('contact.age');
     });
 
+    it("ignore trailing spaces after varibles inside parenthenses triggering function completions", function() {
+        expect(parser.autoCompleteContext("Hi @(contact.age   ")).toBe('contact.age');
+    });
+
     it('ignore the parenthesis triggering functions completions for functions', function() {
         expect(parser.autoCompleteContext("Hi @(SUM")).toBe('SUM');
     });
