@@ -54,7 +54,7 @@
         var skipChar = false;
         var neededParentheses = [];
         var inQuotes = false;
-        var prependFlag = ''
+        var prependFlag = '';
 
         for (var pos = partialExpression.length - 1; pos >= 0; pos--) {
             var ch = partialExpression[pos];
