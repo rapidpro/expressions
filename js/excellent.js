@@ -54,6 +54,7 @@
         var skipChar = false;
         var neededParentheses = [];
         var inQuotes = false;
+        var prependFlag = ''
 
         for (var pos = partialExpression.length - 1; pos >= 0; pos--) {
             var ch = partialExpression[pos];
@@ -92,6 +93,7 @@
             }
 
             if (skipChar || inQuotes || (ch === '(' && fragment == '')) {
+                prependFlag = '#';
                 continue;
             }
 
@@ -103,7 +105,7 @@
         }
 
         if (fragment.match(/[A-Za-z][\w]*(\.[\w]+)*/)) {
-            return fragment;
+            return prependFlag + fragment;
         }
         else {
             return null;
