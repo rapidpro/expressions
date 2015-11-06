@@ -79,6 +79,7 @@ describe("get auto-complete context", function() {
 
     it("matches the variable in function parameters", function() {
         expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added")).toBe('contact.date_added');
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, contact.na")).toBe('contact.na');
     });
 
     it('matches the function with incomplete parameters without trailing space', function () {

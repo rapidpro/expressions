@@ -92,8 +92,11 @@
                 }
             }
 
-            if (skipChar || inQuotes || (ch === '(' && fragment == '')) {
+            if (ch === '(' && fragment == '') {
                 prependFlag = '#';
+            }
+
+            if (skipChar || inQuotes || (ch === '(' && fragment == '')) {
                 continue;
             }
 
