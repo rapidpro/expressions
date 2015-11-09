@@ -52,4 +52,53 @@ describe("get auto-complete context", function() {
         expect(parser.autoCompleteContext('Hi @(CONCAT("@con')).toBeNull();
         expect(parser.autoCompleteContext('Hi @("!" & "@con')).toBeNull();
     });
+
+    it("ignore parenthesis triggering functions completions for variables", function() {
+        expect(parser.autoCompleteContext("Hi @(contact.age")).toBe('contact.age');
+    });
+
+    it('ignore the parenthesis triggering functions completions for functions', function() {
+        expect(parser.autoCompleteContext("Hi @(SUM")).toBe('SUM');
+    });
+
+    it("matches the function without parameters", function() {
+        expect(parser.autoCompleteContext("Hi @(SUM(")).toBe('#SUM');
+    });
+
+    it("matches the function missing balanced parentheses", function() {
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)")).toBe('#SUM');
+    });
+
+    it("ignores trailing spaces in function parameters", function () {
+        expect(parser.autoCompleteContext("Hi @(SUM( ")).toBe('#SUM');
+        expect(parser.autoCompleteContext("Hi @(SUM(   ")).toBe('#SUM');
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number))  ")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(dads, ABS(number)  ")).toBe('#SUM');
+    });
+
+    it("matches the variable in function parameters", function() {
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added")).toBe('contact.date_added');
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, contact.na")).toBe('contact.na');
+    });
+
+    it('matches the function with incomplete parameters without trailing space', function () {
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added,")).toBe('#SUM');
+    });
+
+    it('matches the function with incomplete parameters with trailing space', function () {
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added,  ")).toBe('#SUM');
+    });
+
+    it('ignore the function with balanced parentheses', function(){
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, step)")).toBeNull();
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value)")).toBe('#SUM');
+        expect(parser.autoCompleteContext("Hi @(SUM(contact.date_added, ABS(step.value))")).toBeNull();
+    });
+
+    it('ignore string literal in parameters', function () {
+        expect(parser.autoCompleteContext('Hi @(SUM(contact.date_added, "foo ( bar",  step)')).toBeNull();
+        expect(parser.autoCompleteContext('Hi @(SUM(contact.date_added, "foo ( bar", ABS(step.value)')).toBe('#SUM');
+    });
+
 });
