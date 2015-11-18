@@ -219,6 +219,43 @@ class ConversionsTest(unittest.TestCase):
         self.assertEqual(conversions.to_repr(self.tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)), self.context), '"14-08-2015 09:12"')
 
 
+class EvaluationContextTest(unittest.TestCase):
+
+    def test_resolve_variable(self):
+        contact = {
+            "*": "Bob",
+            "name": "Bob",
+            "age": 33,
+            "join_date_1": "28-08-2015 13:06",
+            "isnull": None
+        }
+
+        context = EvaluationContext()
+        context.put_variable("foo", 123)
+        context.put_variable("contact", contact)
+
+        self.assertEqual(context.resolve_variable("foo"), 123)
+        self.assertEqual(context.resolve_variable("FOO"), 123)
+        self.assertEqual(context.resolve_variable("contact"), "Bob")
+        self.assertEqual(context.resolve_variable("contact.name"), "Bob")
+        self.assertEqual(context.resolve_variable("Contact.AGE"), 33)
+        self.assertEqual(context.resolve_variable("Contact.join_date_1"), "28-08-2015 13:06")
+        self.assertEqual(context.resolve_variable("Contact.isnull"), None)
+
+        # no such item
+        self.assertRaises(EvaluationError, context.resolve_variable, "bar")
+
+        context.put_variable("bar", {'x': 4})
+
+        # container without default
+        self.assertRaises(EvaluationError, context.resolve_variable, "bar")
+
+        context.put_variable("zed", ['x', 4])
+
+        # container which is not a dict
+        self.assertRaises(EvaluationError, context.resolve_variable, "zed.something")
+
+
 class EvaluatorTest(unittest.TestCase):
 
     def setUp(self):

@@ -130,7 +130,7 @@ public class EvaluationContext {
                 return valueAsMap.get("*");
             }
             else {
-                throw new RuntimeException("Context contains map without default key");
+                throw new EvaluationError("Undefined variable: " + originalPath);
             }
         } else {
             return value;

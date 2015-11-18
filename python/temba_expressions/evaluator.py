@@ -88,7 +88,7 @@ class EvaluationContext(object):
             elif '__default__' in value:
                 return value['__default__']
             else:
-                raise ValueError("Context contains map without default key")
+                raise EvaluationError("Undefined variable: %s" % original_path)
         else:
             return value
 

@@ -59,7 +59,7 @@ public class EvaluationContextTest {
         assertThat(context.resolveVariable("Contact.isnull"), is((Object) null));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = EvaluationError.class)
     public void read_noSuchItem() {
         EvaluationContext context = new EvaluationContext();
         context.putVariable("foo", 123);
@@ -67,7 +67,7 @@ public class EvaluationContextTest {
         context.resolveVariable("bar");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = EvaluationError.class)
     public void read_containerHasNoDefault() {
         Map<String, Object> contact = new HashMap<>();
         contact.put("name", "Bob");
@@ -78,7 +78,7 @@ public class EvaluationContextTest {
         context.resolveVariable("contact");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = EvaluationError.class)
     public void read_containerIsNotMap() {
         Map<String, Object> contact = new HashMap<>();
         contact.put("name", "Bob");
