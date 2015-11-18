@@ -448,6 +448,12 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual(excel.year(self.context, date(2012, 3, 2)), 2012)
 
         # math functions
+        self.assertEqual(excel.average(self.context, 1), 1)
+        self.assertEqual(excel.average(self.context, 1, "2", 3), 2)
+        self.assertEqual(excel.average(self.context, -1, -2), Decimal('-1.5'))
+
+        self.assertRaises(ValueError, excel.average, self.context)  # no args
+
         self.assertEqual(excel._abs(self.context, 1), 1)
         self.assertEqual(excel._abs(self.context, -1), 1)
 
@@ -459,9 +465,13 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual(excel._max(self.context, 1, 3, 2, -5), 3)
         self.assertEqual(excel._max(self.context, -2, -5), -2)
 
+        self.assertRaises(ValueError, excel._max, self.context)  # no args
+
         self.assertEqual(excel._min(self.context, 1), 1)
         self.assertEqual(excel._min(self.context, -1, -3, -2, 5), -3)
         self.assertEqual(excel._min(self.context, -2, -5), -5)
+
+        self.assertRaises(ValueError, excel._min, self.context)  # no args
 
         self.assertEqual(excel.mod(self.context, Decimal(3), 2), 1)
         self.assertEqual(excel.mod(self.context, Decimal(-3), Decimal(2)), 1)
@@ -495,6 +505,8 @@ class FunctionsTest(unittest.TestCase):
 
         self.assertEqual(excel._sum(self.context, 1), 1)
         self.assertEqual(excel._sum(self.context, 1, 2, 3), 6)
+
+        self.assertRaises(ValueError, excel._sum, self.context)  # no args
 
         self.assertEqual(excel.trunc(self.context, '8.9'), 8)
         self.assertEqual(excel.trunc(self.context, '-8.9'), -8)

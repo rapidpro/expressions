@@ -274,6 +274,18 @@ public class ExcelFunctionsTest {
     }
 
     @Test
+    public void test_average() {
+        assertThat(average(m_context, 1), is(new BigDecimal(1)));
+        assertThat(average(m_context, 1, "2", 3), is(new BigDecimal(2)));
+        assertThat(average(m_context, -1, -2), is(new BigDecimal("-1.5")));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void test_average_noArgs() {
+        average(m_context);
+    }
+
+    @Test
     public void test_int() {
         assertThat(_int(m_context, "8.9"), is(8));
         assertThat(_int(m_context, "-8.9"), is(-9));

@@ -318,6 +318,18 @@ public class ExcelFunctions {
     }
 
     /**
+     * Returns the average (arithmetic mean) of the arguments
+     */
+    public static BigDecimal average(EvaluationContext ctx, Object... args) {
+        if (args.length == 0) {
+            throw new RuntimeException("Wrong number of arguments");
+        }
+
+        return sum(ctx, args).divide(new BigDecimal(args.length));
+    }
+
+
+    /**
      * Rounds a number down to the nearest integer
      */
     public static int _int(EvaluationContext ctx, Object number) {

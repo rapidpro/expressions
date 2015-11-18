@@ -186,6 +186,13 @@
     "errors": []
   },
   {
+    "template": "@(AVERAGE(1)) @(AVERAGE(1, \"2\", 3)) @(AVERAGE(-1, -2))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "1 2 -1.5",
+    "errors": []
+  },
+  {
     "template": "@(AND(1, true, \"true\")) @(AND(1, true, \"true\", 0))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,

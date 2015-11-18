@@ -261,6 +261,13 @@ def _abs(ctx, number):
     return conversions.to_decimal(abs(conversions.to_decimal(number, ctx)), ctx)
 
 
+def average(ctx, *number):
+    """
+    Returns the average (arithmetic mean) of the arguments
+    """
+    return _sum(ctx, *number) / len(number)
+
+
 def _int(ctx, number):
     """
     Rounds a number down to the nearest integer
@@ -272,6 +279,9 @@ def _max(ctx, *number):
     """
     Returns the maximum value of all arguments
     """
+    if len(number) == 0:
+        raise ValueError("Wrong number of arguments")
+
     result = conversions.to_decimal(number[0], ctx)
     for arg in number[1:]:
         arg = conversions.to_decimal(arg, ctx)
@@ -284,6 +294,9 @@ def _min(ctx, *number):
     """
     Returns the minimum value of all arguments
     """
+    if len(number) == 0:
+        raise ValueError("Wrong number of arguments")
+
     result = conversions.to_decimal(number[0], ctx)
     for arg in number[1:]:
         arg = conversions.to_decimal(arg, ctx)
@@ -358,6 +371,9 @@ def _sum(ctx, *number):
     """
     Returns the sum of all arguments
     """
+    if len(number) == 0:
+        raise ValueError("Wrong number of arguments")
+
     result = Decimal(0)
     for arg in number:
         result += conversions.to_decimal(arg, ctx)
