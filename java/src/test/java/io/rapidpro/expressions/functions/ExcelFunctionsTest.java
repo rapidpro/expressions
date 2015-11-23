@@ -180,6 +180,18 @@ public class ExcelFunctionsTest {
     }
 
     @Test
+    public void test_datedif() {
+        assertThat(datedif(m_context, "28/5/81", "23-11-15", "y"), is(34));
+        assertThat(datedif(m_context, LocalDate.of(2011, 1, 1), LocalDate.of(2012, 12, 31), "y"), is(1));
+        assertThat(datedif(m_context, "20/9/14", "23/11/15", "m"), is(14));
+        assertThat(datedif(m_context, "1/6/2001", "15/8/2002", "d"), is(440));
+        assertThat(datedif(m_context, "1/6/2001", "15/8/2002", "YD"), is(75));
+        assertThat(datedif(m_context, "1/6/2001", "15/8/2002", "YM"), is(2));
+        assertThat(datedif(m_context, "1/6/2001", "15/8/2002", "mD"), is(14));
+        assertThat(datedif(m_context, "16/6/2001", "15/8/2002", "mD"), is(30));
+    }
+
+    @Test
     public void test_datevalue() {
         assertThat(datevalue(m_context, "2-3-13"), is(LocalDate.of(2013, 3, 2)));
         assertThat(datevalue(m_context, "Aug 14th 2015"), is(LocalDate.of(2015, 8, 14)));
@@ -190,6 +202,12 @@ public class ExcelFunctionsTest {
         assertThat(day(m_context, LocalDate.of(2013, 3, 2)), is(2));
         assertThat(day(m_context, ZonedDateTime.of(2015, 8, 14, 10, 27, 0, 0, ZoneId.of("Africa/Kigali"))), is(14));
         assertThat(day(m_context, "Aug 14th 2015"), is(14));
+    }
+
+    @Test
+    public void test_days() {
+        assertThat(days(m_context, "15/3/11", "1/2/11"), is(42));
+        assertThat(days(m_context, ZonedDateTime.of(2011, 12, 31, 10, 38, 30, 123456, ZoneId.of("Africa/Kigali")), LocalDate.of(2011, 1, 1)), is(364));
     }
 
     @Test

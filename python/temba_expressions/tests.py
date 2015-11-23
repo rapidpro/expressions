@@ -458,9 +458,21 @@ class FunctionsTest(unittest.TestCase):
         # date functions
         self.assertEqual(excel.date(self.context, 2012, "3", Decimal(2.0)), date(2012, 3, 2))
 
+        self.assertEqual(excel.datedif(self.context, "28/5/81", "23-11-15", "y"), 34)
+        self.assertEqual(excel.datedif(self.context, date(2011, 1, 1), date(2012, 12, 31), "y"), 1)
+        self.assertEqual(excel.datedif(self.context, "20/9/14", "23/11/15", "m"), 14)
+        self.assertEqual(excel.datedif(self.context, "1/6/2001", "15/8/2002", "d"), 440)
+        self.assertEqual(excel.datedif(self.context, "1/6/2001", "15/8/2002", "YD"), 75)
+        self.assertEqual(excel.datedif(self.context, "1/6/2001", "15/8/2002", "YM"), 2)
+        self.assertEqual(excel.datedif(self.context, "1/6/2001", "15/8/2002", "mD"), 14)
+        self.assertEqual(excel.datedif(self.context, "16/6/2001", "15/8/2002", "mD"), 30)
+
         self.assertEqual(excel.datevalue(self.context, "2-3-13"), date(2013, 3, 2))
 
         self.assertEqual(excel.day(self.context, date(2012, 3, 2)), 2)
+
+        self.assertEqual(excel.days(self.context, "15/3/11", "1/2/11"), 42)
+        self.assertEqual(excel.days(self.context, self.tz.localize(datetime(2011, 12, 31, 10, 38, 30, 123456)), date(2011, 1, 1)), 364)
 
         self.assertEqual(excel.edate(self.context, date(2013, 3, 2), 1), date(2013, 4, 2))
         self.assertEqual(excel.edate(self.context, '01-02-2014', -2), date(2013, 12, 1))

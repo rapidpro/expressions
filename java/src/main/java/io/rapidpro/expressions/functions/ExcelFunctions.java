@@ -6,10 +6,7 @@ import io.rapidpro.expressions.functions.annotations.BooleanDefault;
 import io.rapidpro.expressions.functions.annotations.IntegerDefault;
 import io.rapidpro.expressions.utils.ExpressionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetTime;
-import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.*;
 import org.threeten.bp.temporal.ChronoField;
 import org.threeten.bp.temporal.ChronoUnit;
 import org.threeten.bp.temporal.Temporal;
@@ -210,6 +207,36 @@ public class ExcelFunctions {
     }
 
     /**
+     * Calculates the number of days, months, or years between two dates.
+     */
+    public static int datedif(EvaluationContext ctx, Object startDate, Object endDate, Object unit) {
+        LocalDate _startDate = Conversions.toDate(startDate, ctx);
+        LocalDate _endDate = Conversions.toDate(endDate, ctx);
+        String _unit = Conversions.toString(unit, ctx).toLowerCase();
+
+        if (_startDate.isAfter(_endDate)) {
+            throw new RuntimeException("Start date cannot be after end date");
+        }
+
+        switch (_unit) {
+        case "y":
+            return (int) ChronoUnit.YEARS.between(_startDate, _endDate);
+        case "m":
+            return (int) ChronoUnit.MONTHS.between(_startDate, _endDate);
+        case "d":
+            return (int) ChronoUnit.DAYS.between(_startDate, _endDate);
+        case "md":
+            return Period.between(_startDate, _endDate).getDays();
+        case "ym":
+            return Period.between(_startDate, _endDate).getMonths();
+        case "yd":
+            return (int) ChronoUnit.DAYS.between(_startDate.withYear(_endDate.getYear()), _endDate);
+        }
+
+        throw new RuntimeException("Invalid unit value: " + _unit);
+    }
+
+    /**
      * Converts date stored in text to an actual date
      */
     public static LocalDate datevalue(EvaluationContext ctx, Object text) {
@@ -221,6 +248,13 @@ public class ExcelFunctions {
      */
     public static int day(EvaluationContext ctx, Object date) {
         return Conversions.toDateOrDateTime(date, ctx).get(ChronoField.DAY_OF_MONTH);
+    }
+
+    /**
+     * Returns the number of days between two dates.
+     */
+    public static int days(EvaluationContext ctx, Object endDate, Object startDate) {
+        return datedif(ctx, startDate, endDate, "d");
     }
 
     /**

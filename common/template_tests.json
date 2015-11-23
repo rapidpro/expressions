@@ -235,6 +235,20 @@
     "errors": []
   },
   {
+    "template": "@(DATEDIF(\"28/5/81\", \"23-11-15\", \"y\")) @(DATEDIF(\"1/1/2011\", \"31-12-2012\", \"Y\")) @(DATEDIF(\"20/9/14\", \"23/11/15\", \"m\")) @(DATEDIF(\"1/6/2001\", \"15/8/2002\", \"d\"))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "34 1 14 440",
+    "errors": []
+  },
+  {
+    "template": "@(DATEDIF(\"1/6/2001\", \"15/8/2002\", \"YD\")) @(DATEDIF(\"1/6/2001\", \"15/8/2002\", \"YM\")) @(DATEDIF(\"1/6/2001\", \"15/8/2002\", \"mD\")) @(DATEDIF(\"16/6/2001\", \"15/8/2002\", \"mD\"))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "75 2 14 30",
+    "errors": []
+  },
+  {
     "template": "@(DATEVALUE(\"1/2/34\")) @(DATEVALUE(\"1-2-34\")) @(DATEVALUE(\"01 02 34\")) @(DATEVALUE(\"1 Feb 34\")) @(DATEVALUE(\"1. 2 '34\")) @(DATEVALUE(\"1st february 2034\")) @(DATEVALUE(\"1er février 2034\"))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
@@ -260,6 +274,13 @@
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
     "output": "10 1",
+    "errors": []
+  },
+  {
+    "template": "@(DAYS(\"15/3/11\", \"1/2/11\")) @(DAYS(flow.d1, flow.d2))",
+    "context": {"variables": {"flow": {"d1": "2011-12-31T10:38:30.123456Z", "d2": "1/1/2011"}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "42 364",
     "errors": []
   },
   {

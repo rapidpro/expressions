@@ -160,6 +160,34 @@ def date(ctx, year, month, day):
     return _date(conversions.to_integer(year, ctx), conversions.to_integer(month, ctx), conversions.to_integer(day, ctx))
 
 
+def datedif(ctx, start_date, end_date, unit):
+    """
+    Calculates the number of days, months, or years between two dates.
+    """
+    start_date = conversions.to_date(start_date, ctx)
+    end_date = conversions.to_date(end_date, ctx)
+    unit = conversions.to_string(unit, ctx).lower()
+
+    if start_date > end_date:
+        raise ValueError("Start date cannot be after end date")
+
+    if unit == 'y':
+        return relativedelta(end_date, start_date).years
+    elif unit == 'm':
+        delta = relativedelta(end_date, start_date)
+        return 12 * delta.years + delta.months
+    elif unit == 'd':
+        return (end_date - start_date).days
+    elif unit == 'md':
+        return relativedelta(end_date, start_date).days
+    elif unit == 'ym':
+        return relativedelta(end_date, start_date).months
+    elif unit == 'yd':
+        return (end_date - start_date.replace(year=end_date.year)).days
+
+    raise ValueError("Invalid unit value: %s" % unit)
+
+
 def datevalue(ctx, text):
     """
     Converts date stored in text to an actual date
@@ -172,6 +200,13 @@ def day(ctx, date):
     Returns only the day of the month of a date (1 to 31)
     """
     return conversions.to_date_or_datetime(date, ctx).day
+
+
+def days(ctx, end_date, start_date):
+    """
+    Returns the number of days between two dates.
+    """
+    return datedif(ctx, start_date, end_date, 'd')
 
 
 def edate(ctx, date, months):
