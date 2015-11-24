@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
+import json
 import logging
 import pytz
 
@@ -88,7 +89,7 @@ class EvaluationContext(object):
             elif '__default__' in value:
                 return value['__default__']
             else:
-                raise EvaluationError("Undefined variable: %s" % original_path)
+                return json.dumps(value, separators=(',', ':'))  # return serialized JSON if no default
         else:
             return value
 

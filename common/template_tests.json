@@ -68,6 +68,13 @@
     "output": "Name: ",
     "errors": []
   },
+  { /* dict values without defaults should render as JSON */
+    "template": "@extra",
+    "context": {"variables": {"extra": {"color": "RED"}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "{\"color\":\"RED\"}",
+    "errors": []
+  },
 
   /* decimal arithmetic */
 

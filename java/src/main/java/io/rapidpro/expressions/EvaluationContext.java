@@ -19,6 +19,7 @@ public class EvaluationContext {
 
     protected static Gson s_gson = new GsonBuilder()
                 .registerTypeAdapter(EvaluationContext.class, new Deserializer())
+                .serializeNulls()
                 .create();
 
     protected Map<String, Object> m_variables;
@@ -128,9 +129,10 @@ public class EvaluationContext {
             Map valueAsMap = ((Map) value);
             if (valueAsMap.containsKey("*")) {
                 return valueAsMap.get("*");
-            }
-            else {
-                throw new EvaluationError("Undefined variable: " + originalPath);
+            } else if (valueAsMap.containsKey("__default__")) {
+                return valueAsMap.get("__default__");
+            } else {
+                return s_gson.toJson(valueAsMap);
             }
         } else {
             return value;

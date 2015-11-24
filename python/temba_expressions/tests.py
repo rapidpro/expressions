@@ -245,11 +245,6 @@ class EvaluationContextTest(unittest.TestCase):
         # no such item
         self.assertRaises(EvaluationError, context.resolve_variable, "bar")
 
-        context.put_variable("bar", {'x': 4})
-
-        # container without default
-        self.assertRaises(EvaluationError, context.resolve_variable, "bar")
-
         context.put_variable("zed", ['x', 4])
 
         # container which is not a dict
