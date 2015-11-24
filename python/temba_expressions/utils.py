@@ -70,3 +70,29 @@ def format_json_date(value):
     # only keep the milliseconds portion of the second fraction
     return micro_precision[:-4] + 'Z'
 
+
+def render_dict(value):
+    """
+    Converts a dict to a string. If dict has a default value, that is returned, otherwise we generate a se of name value
+    pairs separated by new lines.
+    """
+    if '*' in value:
+        return unicode(value['*'])
+    elif '__default__' in value:
+        return unicode(value['__default__'])
+
+    pairs = []
+
+    for item_key, item_val in value.items():
+        # flatten nested dict
+        if isinstance(item_val, dict):
+            if '*' in item_val:
+                item_val = item_val['*']
+            elif '__default__' in item_val:
+                item_val = item_val['__default__']
+            else:
+                item_val = '[...]'
+
+        pairs.append('%s: %s' % (item_key, unicode(item_val)))
+
+    return '\n'.join(sorted(pairs))

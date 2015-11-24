@@ -12,7 +12,7 @@ from enum import Enum
 from . import conversions, EvaluationError
 from .dates import DateStyle, DateParser
 from .functions import FunctionManager, custom, excel
-from .utils import decimal_pow, urlquote, parse_json_date
+from .utils import decimal_pow, urlquote, parse_json_date, render_dict
 
 logger = logging.getLogger(__name__)
 
@@ -83,12 +83,7 @@ class EvaluationContext(object):
             return self._resolve_variable_in_container(value, remaining_path, original_path)
 
         elif isinstance(value, dict):
-            if '*' in value:
-                return value['*']
-            elif '__default__' in value:
-                return value['__default__']
-            else:
-                raise EvaluationError("Undefined variable: %s" % original_path)
+            return render_dict(value)
         else:
             return value
 
