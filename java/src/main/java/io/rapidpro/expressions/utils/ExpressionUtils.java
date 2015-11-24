@@ -2,6 +2,7 @@ package io.rapidpro.expressions.utils;
 
 import io.rapidpro.expressions.dates.DateStyle;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -156,6 +157,42 @@ public final class ExpressionUtils {
             return null;
         }
         return LocalDateTime.parse(value, JSON_DATETIME_FORMAT).atOffset(ZoneOffset.UTC).toInstant();
+    }
+
+    /**
+     * Converts a dict to a string.If dict has a default value, that is returned, otherwise we generate a se of name
+     * value pairs separated by new lines.
+     */
+    public static String renderDict(Map<String, ?> value) {
+        if (value.containsKey("*")) {
+            return String.valueOf(value.get("*"));
+        } else if (value.containsKey("__default__")) {
+            return String.valueOf(value.get("__default__"));
+        }
+
+        List<String> pairs = new ArrayList<>();
+
+        for (Map.Entry<String, ?> entry : value.entrySet()) {
+            String itemKey = entry.getKey();
+            Object itemVal = entry.getValue();
+
+            // flatten nested dict
+            if (itemVal instanceof Map) {
+                Map itemValAsMap = (Map) itemVal;
+                if (itemValAsMap.containsKey("*")) {
+                    itemVal = itemValAsMap.get("*");
+                } else if (itemValAsMap.containsKey("__default__")) {
+                    itemVal = itemValAsMap.get("__default__");
+                } else {
+                    itemVal = "[...]";
+                }
+            }
+
+            pairs.add(itemKey + ": " + itemVal);
+        }
+
+        Collections.sort(pairs);
+        return StringUtils.join(pairs, "\n");
     }
 
     /**

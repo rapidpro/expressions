@@ -68,6 +68,20 @@
     "output": "Name: ",
     "errors": []
   },
+  { /* dicts with defaults */
+    "template": "@contact @flow",
+    "context": {"variables": {"contact": {"*": "Bob", "name": "Robert"}, "flow": {"__default__": 42, "color": "red"}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "Bob 42",
+    "errors": []
+  },
+  { /* dicts without defaults */
+    "template": "@contact",
+    "context": {"variables": {"contact": {"name": "Robert", "address": {"house": 8661, "street": "Kudu Rd"}}}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "address: [...]\nname: Robert",
+    "errors": []
+  },
 
   /* decimal arithmetic */
 

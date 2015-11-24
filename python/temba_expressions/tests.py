@@ -16,7 +16,7 @@ from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
 from .evaluator import Evaluator, EvaluationContext, EvaluationStrategy, DEFAULT_FUNCTION_MANAGER
 from .functions import FunctionManager, excel, custom
-from .utils import urlquote, decimal_pow, tokenize, format_json_date, parse_json_date
+from .utils import urlquote, decimal_pow, tokenize, format_json_date, parse_json_date, render_dict
 
 
 class DateParserTest(unittest.TestCase):
@@ -243,11 +243,6 @@ class EvaluationContextTest(unittest.TestCase):
         self.assertEqual(context.resolve_variable("Contact.isnull"), None)
 
         # no such item
-        self.assertRaises(EvaluationError, context.resolve_variable, "bar")
-
-        context.put_variable("bar", {'x': 4})
-
-        # container without default
         self.assertRaises(EvaluationError, context.resolve_variable, "bar")
 
         context.put_variable("zed", ['x', 4])
@@ -746,6 +741,27 @@ class UtilsTest(unittest.TestCase):
 
         self.assertEqual(format_json_date(None), None)
         self.assertEqual(format_json_date(val), "2014-10-03T01:41:12.790Z")
+
+    def test_render_dict(self):
+        self.assertEqual(render_dict({"__default__": "Bob", "name": "Robert"}), "Bob")  # old style default
+        self.assertEqual(render_dict({"*": "Bob", "name": "Robert"}), "Bob")  # new style default
+
+        var = {"name": "Robert", "age": 34}
+        self.assertEqual(render_dict(var), "age: 34\nname: Robert")
+
+        # nested dict without default
+        address = {"house": 8661, "street": "Kudu Rd"}
+        var["address"] = address
+        self.assertEqual(render_dict(var), "address: [...]\nage: 34\nname: Robert")
+
+        # nested dict with new style default
+        address["*"] = "8661 Kudu Rd"
+        self.assertEqual(render_dict(var), "address: 8661 Kudu Rd\nage: 34\nname: Robert")
+
+        # nested dict with old style default
+        del address["*"]
+        address["__default__"] = "8661_Kudu_Rd"
+        self.assertEqual(render_dict(var), "address: 8661_Kudu_Rd\nage: 34\nname: Robert")
 
 
 #

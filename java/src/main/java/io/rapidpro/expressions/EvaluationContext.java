@@ -125,13 +125,7 @@ public class EvaluationContext {
             return resolveVariableInContainer((Map<String, Object>) value, remainingPath, originalPath);
         }
         else if (value instanceof Map) {
-            Map valueAsMap = ((Map) value);
-            if (valueAsMap.containsKey("*")) {
-                return valueAsMap.get("*");
-            }
-            else {
-                throw new EvaluationError("Undefined variable: " + originalPath);
-            }
+            return ExpressionUtils.renderDict((Map<String, Object>) value);
         } else {
             return value;
         }

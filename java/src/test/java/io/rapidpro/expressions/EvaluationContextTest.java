@@ -68,17 +68,6 @@ public class EvaluationContextTest {
     }
 
     @Test(expected = EvaluationError.class)
-    public void read_containerHasNoDefault() {
-        Map<String, Object> contact = new HashMap<>();
-        contact.put("name", "Bob");
-
-        EvaluationContext context = new EvaluationContext();
-        context.putVariable("contact", contact);
-
-        context.resolveVariable("contact");
-    }
-
-    @Test(expected = EvaluationError.class)
     public void read_containerIsNotMap() {
         Map<String, Object> contact = new HashMap<>();
         contact.put("name", "Bob");
