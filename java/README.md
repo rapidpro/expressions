@@ -1,7 +1,7 @@
 RapidPro Expressions
 ====================
 
-Java implementation of the RapidPro expression and templating system
+Java implementation of the RapidPro expression and templating system.
 
 Usage
 -----

@@ -1,7 +1,7 @@
 RapidPro Expressions
 ====================
 
-Python implementation of the RapidPro expression and templating system
+Python implementation of the RapidPro expression and templating system.
 
 Usage
 -----

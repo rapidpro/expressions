@@ -1,6 +1,6 @@
 # RapidPro Expressions
 
-RapidPro messages and flows can contain expressions which are evaluated at runtime. These come in two flavours: simple and advanced.
+RapidPro messages and flows can contain expressions which are evaluated at runtime. These come in two flavors: simple and advanced.
 
 ## Simple Syntax
 
