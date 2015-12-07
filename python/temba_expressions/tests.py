@@ -227,7 +227,11 @@ class EvaluationContextTest(unittest.TestCase):
             "name": "Bob",
             "age": 33,
             "join_date_1": "28-08-2015 13:06",
-            "isnull": None
+            "isnull": None,
+            "isbool": True,
+            "isfloat": float(1.5),
+            "islong": long(9223372036854775807L),
+            "isdict": {'a': 123}
         }
 
         context = EvaluationContext()
@@ -237,10 +241,14 @@ class EvaluationContextTest(unittest.TestCase):
         self.assertEqual(context.resolve_variable("foo"), 123)
         self.assertEqual(context.resolve_variable("FOO"), 123)
         self.assertEqual(context.resolve_variable("contact"), "Bob")
-        self.assertEqual(context.resolve_variable("contact.name"), "Bob")
-        self.assertEqual(context.resolve_variable("Contact.AGE"), 33)
-        self.assertEqual(context.resolve_variable("Contact.join_date_1"), "28-08-2015 13:06")
-        self.assertEqual(context.resolve_variable("Contact.isnull"), None)
+        self.assertEqual(context.resolve_variable("Contact.name"), "Bob")
+        self.assertEqual(context.resolve_variable("contact.AGE"), 33)
+        self.assertEqual(context.resolve_variable("contact.join_date_1"), "28-08-2015 13:06")
+        self.assertEqual(context.resolve_variable("contact.isnull"), "")
+        self.assertEqual(context.resolve_variable("contact.isbool"), True)
+        self.assertEqual(context.resolve_variable("contact.isfloat"), Decimal('1.5'))
+        self.assertEqual(context.resolve_variable("contact.islong"), Decimal('9223372036854775807'))
+        self.assertEqual(context.resolve_variable("contact.isdict"), '{"a":123}')
 
         # no such item
         self.assertRaises(EvaluationError, context.resolve_variable, "bar")

@@ -39,12 +39,19 @@ public class EvaluationContextTest {
 
     @Test
     public void resolveVariable() {
+        Map<String, Object> dict = new HashMap<>();
+        dict.put("a", 123);
+
         Map<String, Object> contact = new HashMap<>();
         contact.put("*", "Bob");
         contact.put("name", "Bob");
         contact.put("age", 33);
         contact.put("join_date_1", "28-08-2015 13:06");
         contact.put("isnull", null);
+        contact.put("isbool", true);
+        contact.put("isfloat", 1.5f);
+        contact.put("islong", 9223372036854775807L);
+        contact.put("isdict", dict);
 
         EvaluationContext context = new EvaluationContext();
         context.putVariable("foo", 123);
@@ -53,10 +60,14 @@ public class EvaluationContextTest {
         assertThat(context.resolveVariable("foo"), is((Object) 123));
         assertThat(context.resolveVariable("FOO"), is((Object) 123));
         assertThat(context.resolveVariable("contact"), is((Object) "Bob"));
-        assertThat(context.resolveVariable("contact.name"), is((Object) "Bob"));
-        assertThat(context.resolveVariable("Contact.AGE"), is((Object) 33));
-        assertThat(context.resolveVariable("Contact.join_date_1"), is((Object) "28-08-2015 13:06"));
-        assertThat(context.resolveVariable("Contact.isnull"), is((Object) null));
+        assertThat(context.resolveVariable("Contact.name"), is((Object) "Bob"));
+        assertThat(context.resolveVariable("contact.AGE"), is((Object) 33));
+        assertThat(context.resolveVariable("contact.join_date_1"), is((Object) "28-08-2015 13:06"));
+        assertThat(context.resolveVariable("contact.isnull"), is((Object) ""));
+        assertThat(context.resolveVariable("contact.isbool"), is((Object) true));
+        assertThat(context.resolveVariable("contact.isfloat"), is((Object) new BigDecimal("1.5")));
+        assertThat(context.resolveVariable("contact.islong"), is((Object) new BigDecimal("9223372036854775807")));
+        assertThat(context.resolveVariable("contact.isdict"), is((Object) "{\"a\":123}"));
     }
 
     @Test(expected = EvaluationError.class)

@@ -1,6 +1,7 @@
 package io.rapidpro.expressions;
 
 import com.google.gson.*;
+import com.google.gson.internal.LazilyParsedNumber;
 import io.rapidpro.expressions.dates.DateParser;
 import io.rapidpro.expressions.dates.DateStyle;
 import io.rapidpro.expressions.utils.ExpressionUtils;
@@ -97,7 +98,7 @@ public class EvaluationContext {
         return new DateParser(LocalDate.now(), this.m_timezone, m_dateStyle);
     }
 
-    private Object resolveVariableInContainer(Map<String, Object> container, String path, String originalPath) {
+    protected Object resolveVariableInContainer(Map<String, Object> container, String path, String originalPath) {
         String item, remainingPath;
 
         if (path.contains(".")) {
@@ -124,8 +125,21 @@ public class EvaluationContext {
             }
 
             return resolveVariableInContainer((Map<String, Object>) value, remainingPath, originalPath);
+        } else {
+            return coerceToSupportedType(value);
         }
-        else if (value instanceof Map) {
+    }
+
+    /**
+     * Since we let users populate the context with whatever they want, this ensures the resolved value is something
+     * which the expression engine understands.
+     * @param value the resolved value
+     * @return the value converted to a supported data type
+     */
+    protected static Object coerceToSupportedType(Object value) {
+        if (value == null) {
+            return ""; // # empty string rather than null
+        } else if (value instanceof Map) {
             Map valueAsMap = ((Map) value);
             if (valueAsMap.containsKey("*")) {
                 return valueAsMap.get("*");
@@ -134,6 +148,12 @@ public class EvaluationContext {
             } else {
                 return s_gson.toJson(valueAsMap);
             }
+        } else if (value instanceof Float) {
+            return new BigDecimal((float) value);
+        } else if (value instanceof Double) {
+            return new BigDecimal((double) value);
+        } else if (value instanceof Long) {
+            return new BigDecimal((long) value);
         } else {
             return value;
         }

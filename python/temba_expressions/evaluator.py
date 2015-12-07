@@ -82,7 +82,19 @@ class EvaluationContext(object):
                 raise EvaluationError("Undefined variable: %s" % original_path)
 
             return self._resolve_variable_in_container(value, remaining_path, original_path)
+        else:
+            return self._coerce_to_supported_type(value)
 
+    @classmethod
+    def _coerce_to_supported_type(cls, value):
+        """
+        Since we let users populate the context with whatever they want, this ensures the resolved value is something
+        which the expression engine understands.
+        :param value: the resolved value
+        :return: the value converted to a supported data type
+        """
+        if value is None:
+            return ""  # empty string rather than none
         elif isinstance(value, dict):
             if '*' in value:
                 return value['*']
@@ -90,6 +102,8 @@ class EvaluationContext(object):
                 return value['__default__']
             else:
                 return json.dumps(value, separators=(',', ':'))  # return serialized JSON if no default
+        elif isinstance(value, float) or isinstance(value, long):
+            return Decimal(value)
         else:
             return value
 
@@ -496,8 +510,7 @@ class ExcellentVisitor(ParseTreeVisitor):
         expression: NAME
         """
         identifier = ctx.NAME().getText()
-        value = self._eval_context.resolve_variable(identifier)
-        return value if value is not None else ""  # return empty string rather than none
+        return self._eval_context.resolve_variable(identifier)
 
     def visitParentheses(self, ctx):
         """
