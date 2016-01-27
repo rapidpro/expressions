@@ -273,7 +273,7 @@
     "template": "@(DATEVALUE(\"1 feb\")) @(DATEVALUE(\"Feb 1st\"))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "01-02-2015 01-02-2015",
+    "output": "01-02-2016 01-02-2016",
     "errors": []
   },
   {
