@@ -277,6 +277,13 @@ def weekday(ctx, date):
     Returns the day of the week of a date (1 for Sunday to 7 for Saturday)
     """
     return ((conversions.to_date_or_datetime(date, ctx).weekday() + 1) % 7) + 1
+	
+	
+def weeknum(ctx, date):
+    """
+    Returns the num of the week of a date (Between 1 and 52)
+    """
+    return (conversions.to_date_or_datetime(date, ctx).isocalendar()[1])
 
 
 def year(ctx, date):
