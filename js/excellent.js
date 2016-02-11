@@ -47,7 +47,8 @@
      */
     excellent.Parser.prototype.autoCompleteContext = function(partialExpression) {
 
-        if (this.expressionContext(partialExpression) && this.expressionContext(partialExpression).match(/[(]*[^"]*["]/)) {
+        var currentExpression = this.expressionContext(partialExpression);
+        if (currentExpression && currentExpression.match(/[(]*[^"]*["]/)) {
             if (this.isInStringLiteral(partialExpression)) {
                 return null;
             }
