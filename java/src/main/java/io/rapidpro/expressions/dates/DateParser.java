@@ -124,7 +124,7 @@ public class DateParser {
         }
 
         // split the text into numerical and text tokens
-        Pattern pattern = Pattern.compile("([0-9]+|[^\\W\\d]+)", Pattern.UNICODE_CHARACTER_CLASS);
+        Pattern pattern = Pattern.compile("([0-9]+|\\p{L}+)");
         Matcher matcher = pattern.matcher(text);
         List<String> tokens = new ArrayList<>();
         while (matcher.find()) {
