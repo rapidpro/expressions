@@ -40,6 +40,12 @@ describe("get auto-complete context", function() {
         expect(parser.autoCompleteContext('Hi @contact.na')).toBe('contact.na');
     });
 
+    it("finds context for expression with quote out of function arguments", function() {
+        expect(parser.autoCompleteContext('Hi "@contact.na')).toBe('contact.na');
+        expect(parser.autoCompleteContext('Hey @(SUM(1, 2)) for "@contact.na')).toBe('contact.na');
+        expect(parser.autoCompleteContext('Hey @(SUM(1, 2)) for "@(SUM(contact.na')).toBe('contact.na');
+    });
+
     it("finds context for expression with parentheses", function() {
         expect(parser.autoCompleteContext('Hi @contact.name from @(flow.sen')).toBe('flow.sen');
     });
