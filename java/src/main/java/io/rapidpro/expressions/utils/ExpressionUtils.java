@@ -121,7 +121,7 @@ public final class ExpressionUtils {
         boolean match = false;
         while (i < len) {
             int ch = text.codePointAt(i);
-            if (!(Character.isDigit(ch) || ch == '_' || Character.isAlphabetic(ch))) {
+            if (!(Character.isDigit(ch) || ch == '_' || Character.isLetter(ch))) {
                 if (match) {
                     list.add(text.substring(start, i));
                     match = false;
