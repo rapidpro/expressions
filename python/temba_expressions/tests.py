@@ -738,6 +738,8 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(tokenize("  hey  \t@ there  "), ["hey", "there"])
         self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])
         self.assertEqual(tokenize("we win @game and we \U0001F64C"), ["we", "win", "game", "and", "we", "\U0001F64C"])
+        self.assertEqual(tokenize(""), [])
+        self.assertEqual(tokenize("\n @ ."), [])
 
     def test_parse_json_date(self):
         val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)

@@ -10,13 +10,13 @@ from decimal import Decimal, ROUND_HALF_UP
 
 JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-WORD_TOKEN_REGEX = ur"\w+"  # any word characters
-WORD_TOKEN_REGEX += ur"|[\u20A0-\u20CF]"  # Currency symbols
-WORD_TOKEN_REGEX += ur"|[\u2600-\u27BF]"  # Miscellaneous symbols
-WORD_TOKEN_REGEX += ur"|\uD83C[\uDF00-\uDFFF]"  # Miscellaneous Symbols and Pictographs, Emoticons
-WORD_TOKEN_REGEX += ur"|\uD83D[\uDC00-\uDE4F]"  # Miscellaneous Symbols and Pictographs, Emoticons
-WORD_TOKEN_REGEX += ur"|\uD83D[\uDE80-\uDEFF]"  # Transport and Map Symbols
-WORD_TOKEN_REGEX += ur"|\uD83E[\uDD00-\uDDFF]"  # Supplemental Symbols and Pictographs
+WORD_TOKEN_REGEX = r"\w+"  # any word characters
+WORD_TOKEN_REGEX += r"|[\u20A0-\u20CF]"  # Currency symbols
+WORD_TOKEN_REGEX += r"|[\u2600-\u27BF]"  # Miscellaneous symbols
+WORD_TOKEN_REGEX += r"|\uD83C[\uDF00-\uDFFF]"  # Miscellaneous Symbols and Pictographs, Emoticons
+WORD_TOKEN_REGEX += r"|\uD83D[\uDC00-\uDE4F]"  # Miscellaneous Symbols and Pictographs, Emoticons
+WORD_TOKEN_REGEX += r"|\uD83D[\uDE80-\uDEFF]"  # Transport and Map Symbols
+WORD_TOKEN_REGEX += r"|\uD83E[\uDD00-\uDDFF]"  # Supplemental Symbols and Pictographs
 
 
 def decimal_pow(number, power):
@@ -51,8 +51,7 @@ def tokenize(text):
     """
     Tokenizes a string by splitting on non-word characters.
     """
-    splits = regex.findall(WORD_TOKEN_REGEX, text, flags=regex.UNICODE | regex.V0)
-    return [split for split in splits if split]   # return only non-empty
+    return regex.findall(WORD_TOKEN_REGEX, text, flags=regex.UNICODE | regex.V0)
 
 
 def parse_json_date(value):
