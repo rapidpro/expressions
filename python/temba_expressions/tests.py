@@ -5,12 +5,13 @@ import codecs
 import json
 import pytz
 import regex
+import six
 import sys
 import unittest
 
 from datetime import datetime, date, time
 from decimal import Decimal
-from itertools import ifilter
+from six.moves import filter
 from time import clock
 from . import conversions, EvaluationError
 from .dates import DateParser, DateStyle
@@ -137,7 +138,9 @@ class ConversionsTest(unittest.TestCase):
         self.assertEqual(conversions.to_integer("1234", self.context), 1234)
 
         self.assertRaises(EvaluationError, conversions.to_integer, 'x', self.context)
-        self.assertRaises(EvaluationError, conversions.to_integer, Decimal("12345678901234567890"), self.context)
+
+        if six.PY2:
+            self.assertRaises(EvaluationError, conversions.to_integer, Decimal("12345678901234567890"), self.context)
 
     def test_to_decimal(self):
         self.assertEqual(conversions.to_decimal(True, self.context), Decimal(1))
@@ -230,7 +233,7 @@ class EvaluationContextTest(unittest.TestCase):
             "isnull": None,
             "isbool": True,
             "isfloat": float(1.5),
-            "islong": long(9223372036854775807L),
+            "isint": 9223372036854775807,
             "isdict": {'a': 123}
         }
 
@@ -247,7 +250,7 @@ class EvaluationContextTest(unittest.TestCase):
         self.assertEqual(context.resolve_variable("contact.isnull"), "")
         self.assertEqual(context.resolve_variable("contact.isbool"), True)
         self.assertEqual(context.resolve_variable("contact.isfloat"), Decimal('1.5'))
-        self.assertEqual(context.resolve_variable("contact.islong"), Decimal('9223372036854775807'))
+        self.assertEqual(context.resolve_variable("contact.isint"), Decimal('9223372036854775807'))
         self.assertEqual(context.resolve_variable("contact.isdict"), '{"a":123}')
 
         # no such item
@@ -367,7 +370,7 @@ class FunctionsTest(unittest.TestCase):
         listing = DEFAULT_FUNCTION_MANAGER.build_listing()
 
         def by_name(name):
-            return next(ifilter(lambda f: f['name'] == name, listing), None)
+            return next(filter(lambda f: f['name'] == name, listing), None)
 
         # check function with no params
         self.assertEqual(by_name('NOW'), {'name': 'NOW',
@@ -671,7 +674,7 @@ class TemplateTest(unittest.TestCase):
                 if not test.run(evaluator):
                     failures.append(test)
             except Exception as e:
-                print "Exception whilst evaluating: %s" % test.template
+                print("Exception whilst evaluating: %s" % test.template)
                 raise e
 
         duration = int(round(clock() * 1000)) - start

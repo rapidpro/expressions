@@ -4,9 +4,9 @@ import datetime
 import math
 import pytz
 import regex
-import urllib
 
 from decimal import Decimal, ROUND_HALF_UP
+from six.moves.urllib.parse import quote
 
 JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -36,7 +36,7 @@ def urlquote(text):
     :param text: the text to encode
     :return: the encoded text
     """
-    return urllib.quote(text.encode('utf-8'))
+    return quote(text.encode('utf-8'))
 
 
 def tokenize(text):

@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
+import six
 
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from . import EvaluationError
@@ -16,7 +17,7 @@ def to_boolean(value, ctx):
         return value != 0
     elif isinstance(value, Decimal):
         return value != Decimal(0)
-    elif isinstance(value, basestring):
+    elif isinstance(value, six.string_types):
         value = value.lower()
         if value == 'true':
             return True
@@ -25,7 +26,7 @@ def to_boolean(value, ctx):
     elif isinstance(value, datetime.date) or isinstance(value, datetime.time):
         return True
 
-    raise EvaluationError("Can't convert '%s' to a boolean" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a boolean" % six.text_type(value))
 
 
 def to_integer(value, ctx):
@@ -43,13 +44,13 @@ def to_integer(value, ctx):
                 return val
         except ArithmeticError:
             pass
-    elif isinstance(value, basestring):
+    elif isinstance(value, six.string_types):
         try:
             return int(value)
         except ValueError:
             pass
 
-    raise EvaluationError("Can't convert '%s' to an integer" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to an integer" % six.text_type(value))
 
 
 def to_decimal(value, ctx):
@@ -62,13 +63,13 @@ def to_decimal(value, ctx):
         return Decimal(value)
     elif isinstance(value, Decimal):
         return value
-    elif isinstance(value, basestring):
+    elif isinstance(value, six.string_types):
         try:
             return Decimal(value)
         except Exception:
             pass
 
-    raise EvaluationError("Can't convert '%s' to a decimal" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a decimal" % six.text_type(value))
 
 
 def to_string(value, ctx):
@@ -78,10 +79,10 @@ def to_string(value, ctx):
     if isinstance(value, bool):
         return "TRUE" if value else "FALSE"
     elif isinstance(value, int):
-        return unicode(value)
+        return six.text_type(value)
     elif isinstance(value, Decimal):
         return format_decimal(value)
-    elif isinstance(value, basestring):
+    elif isinstance(value, six.string_types):
         return value
     elif type(value) == datetime.date:
         return value.strftime(ctx.get_date_format(False))
@@ -90,14 +91,14 @@ def to_string(value, ctx):
     elif isinstance(value, datetime.datetime):
         return value.astimezone(ctx.timezone).strftime(ctx.get_date_format(True))
 
-    raise EvaluationError("Can't convert '%s' to a string" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a string" % six.text_type(value))
 
 
 def to_date(value, ctx):
     """
     Tries conversion of any value to a date
     """
-    if isinstance(value, basestring):
+    if isinstance(value, six.string_types):
         temporal = ctx.get_date_parser().auto(value)
         if temporal is not None:
             return to_date(temporal, ctx)
@@ -106,14 +107,14 @@ def to_date(value, ctx):
     elif isinstance(value, datetime.datetime):
         return value.date()  # discard time
 
-    raise EvaluationError("Can't convert '%s' to a date" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a date" % six.text_type(value))
 
 
 def to_datetime(value, ctx):
     """
     Tries conversion of any value to a datetime
     """
-    if isinstance(value, basestring):
+    if isinstance(value, six.string_types):
         temporal = ctx.get_date_parser().auto(value)
         if temporal is not None:
             return to_datetime(temporal, ctx)
@@ -122,14 +123,14 @@ def to_datetime(value, ctx):
     elif isinstance(value, datetime.datetime):
         return value.astimezone(ctx.timezone)
 
-    raise EvaluationError("Can't convert '%s' to a datetime" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a datetime" % six.text_type(value))
 
 
 def to_date_or_datetime(value, ctx):
     """
     Tries conversion of any value to a date or datetime
     """
-    if isinstance(value, basestring):
+    if isinstance(value, six.string_types):
         temporal = ctx.get_date_parser().auto(value)
         if temporal is not None:
             return temporal
@@ -138,14 +139,14 @@ def to_date_or_datetime(value, ctx):
     elif isinstance(value, datetime.datetime):
         return value.astimezone(ctx.timezone)
 
-    raise EvaluationError("Can't convert '%s' to a date or datetime" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a date or datetime" % six.text_type(value))
 
 
 def to_time(value, ctx):
     """
     Tries conversion of any value to a time
     """
-    if isinstance(value, basestring):
+    if isinstance(value, six.string_types):
         time = ctx.get_date_parser().time(value)
         if time is not None:
             return time
@@ -154,7 +155,7 @@ def to_time(value, ctx):
     elif isinstance(value, datetime.datetime):
         return value.astimezone(ctx.timezone).time()
 
-    raise EvaluationError("Can't convert '%s' to a time" % unicode(value))
+    raise EvaluationError("Can't convert '%s' to a time" % six.text_type(value))
 
 
 def to_same(value1, value2, ctx):
@@ -187,7 +188,7 @@ def to_repr(value, ctx):
     """
     as_string = to_string(value, ctx)
 
-    if isinstance(value, basestring) or isinstance(value, datetime.date) or isinstance(value, datetime.time):
+    if isinstance(value, six.string_types) or isinstance(value, datetime.date) or isinstance(value, datetime.time):
         as_string = as_string.replace('"', '""')  # escape quotes by doubling
         as_string = '"%s"' % as_string
 
@@ -214,4 +215,4 @@ def format_decimal(decimal):
 
     normalized = normalized.quantize(Decimal(10) ** -fractional_digits)
 
-    return unicode(normalized)
+    return six.text_type(normalized)
