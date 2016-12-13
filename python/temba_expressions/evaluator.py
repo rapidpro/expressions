@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import pytz
+import six
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeVisitor, Token
 from antlr4.error.Errors import ParseCancellationException, NoViableAltException
@@ -70,7 +71,7 @@ class EvaluationContext(object):
             remaining_path = None
 
         # copy of container with all lowercase keys
-        container = {k.lower(): v for k, v in container.iteritems()}
+        container = {k.lower(): v for k, v in six.iteritems(container)}
 
         if item not in container:
             raise EvaluationError("Undefined variable: %s" % original_path)
@@ -102,7 +103,7 @@ class EvaluationContext(object):
                 return value['__default__']
             else:
                 return json.dumps(value, separators=(',', ':'))  # return serialized JSON if no default
-        elif isinstance(value, float) or isinstance(value, long):
+        elif isinstance(value, float) or isinstance(value, six.integer_types):
             return Decimal(value)
         else:
             return value
@@ -253,11 +254,11 @@ class Evaluator(object):
             result = conversions.to_string(evaluated, context)
 
             return urlquote(result) if url_encode else result
-        except EvaluationError, e:
-            logger.debug("EvaluationError: %s" % e.message)
+        except EvaluationError as e:
+            logger.debug("EvaluationError: %s" % six.text_type(e))
 
             # if we can't evaluate expression, include it as is in the output
-            errors.append(e.message)
+            errors.append(six.text_type(e))
             return expression
 
     def evaluate_expression(self, expression, context, strategy=EvaluationStrategy.COMPLETE):
@@ -283,7 +284,7 @@ class Evaluator(object):
 
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug("Expression '%s' parsed as %s" % (expression, tree.toStringTree()))
-        except ParseCancellationException, ex:
+        except ParseCancellationException as ex:
             message = None
             if ex.args and isinstance(ex.args[0], NoViableAltException):
                 token = ex.args[0].offendingToken
@@ -434,7 +435,7 @@ class ExcellentVisitor(ParseTreeVisitor):
 
             return _arg1 + _arg2 if is_add else _arg1 - _arg2
 
-        except EvaluationError, ex:
+        except EvaluationError as ex:
             raise EvaluationError("Expression could not be evaluated as decimal or date arithmetic", ex)
 
     def visitComparisonExpression(self, ctx):
@@ -443,11 +444,11 @@ class ExcellentVisitor(ParseTreeVisitor):
         """
         arg1, arg2 = conversions.to_same(self.visit(ctx.expression(0)), self.visit(ctx.expression(1)), self._eval_context)
 
-        if isinstance(arg1, basestring):
+        if isinstance(arg1, six.string_types):
             # string comparison is case-insensitive
-            compared = cmp(arg1.lower(), arg2.lower())
+            compared = (arg1.lower() > arg2.lower()) - (arg1.lower() < arg2.lower())
         else:
-            compared = cmp(arg1, arg2)
+            compared = (arg1 > arg2) - (arg1 < arg2)
 
         if ctx.LTE() is not None:
             return compared <= 0
@@ -464,7 +465,7 @@ class ExcellentVisitor(ParseTreeVisitor):
         """
         arg1, arg2 = conversions.to_same(self.visit(ctx.expression(0)), self.visit(ctx.expression(1)), self._eval_context)
 
-        if isinstance(arg1, basestring):
+        if isinstance(arg1, six.string_types):
             # string equality is case-insensitive
             equal = arg1.lower() == arg2.lower()
         else:

@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import random
+import six
 
 from datetime import date as _date, time as _time
 from dateutil.relativedelta import relativedelta
@@ -130,7 +131,7 @@ def unichar(ctx, number):
     """
     Returns the unicode character specified by a number
     """
-    return unichr(conversions.to_integer(number, ctx))
+    return six.unichr(conversions.to_integer(number, ctx))
 
 
 def _unicode(ctx, text):

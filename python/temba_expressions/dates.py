@@ -203,7 +203,7 @@ class DateParser(object):
                         nano = as_int
                     possibilities[Component.NANO] = nano
                 if len(token) == 4:
-                    hour = as_int / 100
+                    hour = as_int // 100
                     minute = as_int - (hour * 100)
                     if 1 <= hour <= 24 and 1 <= minute <= 59:
                         possibilities[Component.HOUR_AND_MINUTE] = as_int
@@ -252,7 +252,7 @@ class DateParser(object):
         if (Component.HOUR in values and Component.MINUTE in values) or Component.HOUR_AND_MINUTE in values:
             if Component.HOUR_AND_MINUTE in values:
                 combined = values[Component.HOUR_AND_MINUTE]
-                hour = combined / 100
+                hour = combined // 100
                 minute = combined - (hour * 100)
                 second = 0
                 nano = 0
@@ -266,12 +266,12 @@ class DateParser(object):
                     hour += 12
 
             try:
-                time = datetime.time(hour, minute, second, microsecond=(nano / 1000))
+                time = datetime.time(hour, minute, second, microsecond=nano // 1000)
             except ValueError:
                 return None  # not a valid time
 
         if Component.OFFSET in values:
-            timezone = pytz.FixedOffset(values[Component.OFFSET] / 60)
+            timezone = pytz.FixedOffset(values[Component.OFFSET] // 60)
 
         if date is not None and time is not None:
             return timezone.localize(datetime.datetime.combine(date, time))
