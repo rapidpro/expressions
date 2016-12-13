@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import datetime
 import math
 import pytz
+import sys
 import regex
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -13,10 +14,18 @@ JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 WORD_TOKEN_REGEX = r"\w+"  # any word characters
 WORD_TOKEN_REGEX += r"|[\u20A0-\u20CF]"  # Currency symbols
 WORD_TOKEN_REGEX += r"|[\u2600-\u27BF]"  # Miscellaneous symbols
-WORD_TOKEN_REGEX += r"|\uD83C[\uDF00-\uDFFF]"  # Miscellaneous Symbols and Pictographs, Emoticons
-WORD_TOKEN_REGEX += r"|\uD83D[\uDC00-\uDE4F]"  # Miscellaneous Symbols and Pictographs, Emoticons
-WORD_TOKEN_REGEX += r"|\uD83D[\uDE80-\uDEFF]"  # Transport and Map Symbols
-WORD_TOKEN_REGEX += r"|\uD83E[\uDD00-\uDDFF]"  # Supplemental Symbols and Pictographs
+
+if sys.maxunicode > 65535:
+    WORD_TOKEN_REGEX += r"|[\U0001F300-\U0001F5FF]"  # Miscellaneous Symbols and Pictographs
+    WORD_TOKEN_REGEX += r"|[\U0001F600-\U0001F64F]"  # Emoticons
+    WORD_TOKEN_REGEX += r"|[\U0001F680-\U0001F6FF]"  # Transport and Map Symbols
+    WORD_TOKEN_REGEX += r"|[\U0001F900-\U0001F9FF]"  # Supplemental Symbols and Pictographs
+
+else:
+    WORD_TOKEN_REGEX += r"|\uD83C[\uDF00-\uDFFF]"  # Miscellaneous Symbols and Pictographs, Emoticons
+    WORD_TOKEN_REGEX += r"|\uD83D[\uDC00-\uDE4F]"  # Miscellaneous Symbols and Pictographs, Emoticons
+    WORD_TOKEN_REGEX += r"|\uD83D[\uDE80-\uDEFF]"  # Transport and Map Symbols
+    WORD_TOKEN_REGEX += r"|\uD83E[\uDD00-\uDDFF]"  # Supplemental Symbols and Pictographs
 
 
 def decimal_pow(number, power):
