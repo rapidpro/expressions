@@ -117,24 +117,30 @@ public final class ExpressionUtils {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         final List<String> list = new ArrayList<>();
-        int i = 0, start = 0;
-        boolean match = false;
+        int i = 0;
         while (i < len) {
-            int ch = text.codePointAt(i);
-            if (!(Character.isDigit(ch) || ch == '_' || Character.isLetter(ch))) {
-                if (match) {
-                    list.add(text.substring(start, i));
-                    match = false;
-                }
-                start = ++i;
+            char ch = text.charAt(i);
+            int ch32 = text.codePointAt(i);
+
+            if (isEmojiChar(ch32)) {
+                list.add(new String(Character.toChars(ch32)));
+                i += Character.isHighSurrogate(ch) ? 2 : 1;
                 continue;
             }
-            match = true;
+
+            if (isWordChar(ch)) {
+                int wordStart = i;
+                while (i < len && isWordChar(text.codePointAt(i))) {
+                    i++;
+                }
+
+                list.add(text.substring(wordStart, i));
+                continue;
+            }
+
             i++;
         }
-        if (match) {
-            list.add(text.substring(start, i));
-        }
+
         return list.toArray(new String[list.size()]);
     }
 
@@ -169,5 +175,24 @@ public final class ExpressionUtils {
             res.put(entry.getKey().toLowerCase(), entry.getValue());
         }
         return res;
+    }
+
+    /**
+     * Returns whether the given character is a word character (\w in a regex)
+     */
+    static boolean isWordChar(int ch) {
+        return Character.isLetterOrDigit(ch) || ch == '_';
+    }
+
+    /**
+     * Returns whether the given character is a Unicode emoji
+     */
+    static boolean isEmojiChar(int ch) {
+        return (ch >= 0x20A0 && ch <= 0x20CF)          // Currency symbols
+            || (ch >= 0x2600 && ch <= 0x27BF)          // Miscellaneous symbols
+            || (ch >= 0x0001F300 && ch <= 0x0001F5FF)  // Miscellaneous Symbols and Pictographs
+            || (ch >= 0x0001F600 && ch <= 0x0001F64F)  // Emoticons
+            || (ch >= 0x0001F680 && ch <= 0x0001F6FF)  // Transport and Map Symbols
+            || (ch >= 0x0001F900 && ch <= 0x0001F9FF); // Supplemental Symbols and Pictographs
     }
 }
