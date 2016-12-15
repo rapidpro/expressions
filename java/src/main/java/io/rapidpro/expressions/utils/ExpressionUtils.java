@@ -2,8 +2,6 @@ package io.rapidpro.expressions.utils;
 
 import io.rapidpro.expressions.dates.DateStyle;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.CharEncoding;
-import org.apache.commons.lang3.CharUtils;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -183,7 +181,7 @@ public final class ExpressionUtils {
      * Returns whether the given character is a word character (\w in a regex)
      */
     static boolean isWordChar(int ch) {
-        return Character.isDigit(ch) || ch == '_' || Character.isLetter(ch);
+        return Character.isLetterOrDigit(ch) || ch == '_';
     }
 
     /**
