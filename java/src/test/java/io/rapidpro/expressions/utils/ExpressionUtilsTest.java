@@ -1,5 +1,6 @@
 package io.rapidpro.expressions.utils;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
@@ -43,6 +44,12 @@ public class ExpressionUtilsTest {
         assertThat(tokenize("this is a sentence"), arrayContaining("this", "is", "a", "sentence"));
         assertThat(tokenize("  hey  \t@ there  "), arrayContaining("hey", "there"));
         assertThat(tokenize("واحد اثنين ثلاثة"), arrayContaining("واحد", "اثنين", "ثلاثة"));
+        assertThat(tokenize(""), Matchers.<String>emptyArray());
+        assertThat(tokenize("\n @ ."), Matchers.<String>emptyArray());
+        assertThat(tokenize("we win @game and we \uD83D\uDE4C"),
+                arrayContaining("we", "win", "game", "and", "we", "\uD83D\uDE4C"));
+        assertThat(tokenize("we win @game and we \uD83D\uDE4C\uD83D\uDE00 \uD83D\uDE81"),
+                arrayContaining("we", "win", "game", "and", "we", "\uD83D\uDE4C", "\uD83D\uDE00", "\uD83D\uDE81"));
     }
 
     @Test
@@ -68,5 +75,12 @@ public class ExpressionUtilsTest {
         map.put("bAr", "2");
 
         assertThat(toLowerCaseKeys(map), allOf(hasEntry("foo", "1"), hasEntry("bar", "2")));
+    }
+
+    @Test
+    public void _isEmojiChar() {
+        assertThat(isEmojiChar('x'), is(false));
+        assertThat(isEmojiChar('\u20A0'), is(true));
+        assertThat(isEmojiChar(0x0001F300), is(true));
     }
 }
