@@ -22,6 +22,8 @@ import java.text.DecimalFormat;
  */
 public class ExcelFunctions {
 
+    private static BigDecimal E = new BigDecimal("2.718281828459045235360287471");
+
     /************************************************************************************
      * Text Functions
      ************************************************************************************/
@@ -362,6 +364,13 @@ public class ExcelFunctions {
         return sum(ctx, args).divide(new BigDecimal(args.length));
     }
 
+    /**
+     * Returns e raised to the power of number
+     */
+    public static BigDecimal exp(EvaluationContext ctx, Object number) {
+        BigDecimal _number = Conversions.toDecimal(number, ctx);
+        return ExpressionUtils.decimalPow(E, _number);
+    }
 
     /**
      * Rounds a number down to the nearest integer

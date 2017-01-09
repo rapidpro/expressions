@@ -512,6 +512,9 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual(excel._abs(self.context, 1), 1)
         self.assertEqual(excel._abs(self.context, -1), 1)
 
+        self.assertEqual(excel.exp(self.context, 1), Decimal('2.718281828459045090795598298427648842334747314453125'))
+        self.assertEqual(excel.exp(self.context, '2.0'), Decimal('7.38905609893064951876340273884125053882598876953125'))
+
         self.assertEqual(excel._int(self.context, '8.9'), 8)
         self.assertEqual(excel._int(self.context, '-8.9'), -9)
         self.assertEqual(excel._int(self.context, '1234.5678'), 1234)

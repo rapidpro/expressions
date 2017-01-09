@@ -10,6 +10,9 @@ from temba_expressions import conversions
 from temba_expressions.utils import decimal_pow, decimal_round
 
 
+E = Decimal('2.718281828459045235360287471')
+
+
 # =============================== Text ===============================
 
 def char(ctx, number):
@@ -302,6 +305,13 @@ def average(ctx, *number):
     Returns the average (arithmetic mean) of the arguments
     """
     return _sum(ctx, *number) / len(number)
+
+
+def exp(ctx, number):
+    """
+    Returns e raised to the power of number
+    """
+    return decimal_pow(E, conversions.to_decimal(number, ctx))
 
 
 def _int(ctx, number):
