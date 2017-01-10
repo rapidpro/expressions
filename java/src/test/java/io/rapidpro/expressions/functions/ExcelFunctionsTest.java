@@ -304,6 +304,12 @@ public class ExcelFunctionsTest {
     }
 
     @Test
+    public void test_exp() {
+        assertThat(exp(m_context, 1), is(new BigDecimal("2.718281828459045090795598298427648842334747314453125")));
+        assertThat(exp(m_context, "2.0"), is(new BigDecimal("7.38905609893064951876340273884125053882598876953125")));
+    }
+
+    @Test
     public void test_int() {
         assertThat(_int(m_context, "8.9"), is(8));
         assertThat(_int(m_context, "-8.9"), is(-9));

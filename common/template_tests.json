@@ -273,7 +273,7 @@
     "template": "@(DATEVALUE(\"1 feb\")) @(DATEVALUE(\"Feb 1st\"))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first", "now": "2016-02-01T13:08:12.790Z"},
     "url_encode": false,
-    "output": "01-02-2016 01-02-2016",
+    "output": "01-02-2017 01-02-2017",
     "errors": []
   },
   {
@@ -295,6 +295,13 @@
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
     "output": "10-10-2015 01-12-2013",
+    "errors": []
+  },
+  {
+    "template": "@(EXP(2))",
+    "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "7.389056099",
     "errors": []
   },
   {
