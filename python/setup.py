@@ -30,7 +30,7 @@ test_packages, extra_packages = _read_requirements("requirements/tests.txt", ext
 
 setup(
     name='rapidpro-expressions',
-    version='1.1.9',
+    version='1.1.10',
     description='Python implementation of the RapidPro expression and templating system',
     url='https://github.com/rapidpro/expressions',
 
