@@ -225,7 +225,14 @@ public class Conversions {
 
         try {
             // try converting to two dates
-            return new ImmutablePair<Object, Object>(toDateOrDateTime(value1, ctx), toDateOrDateTime(value2, ctx));
+            Temporal d1 = toDateOrDateTime(value1, ctx);
+            Temporal d2 = toDateOrDateTime(value2, ctx);
+            if (!value1.getClass().equals(value2.getClass())) {
+                d1 = toDateTime(d1, ctx);
+                d2 = toDateTime(d2, ctx);
+            }
+
+            return new ImmutablePair<Object, Object>(d1, d2);
         }
         catch (EvaluationError ex) {}
 

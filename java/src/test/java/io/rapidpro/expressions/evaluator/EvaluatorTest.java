@@ -48,6 +48,8 @@ public class EvaluatorTest {
         EvaluationContext context = new EvaluationContext();
         context.putVariable("foo", 5);
         context.putVariable("bar", 3);
+        context.putVariable("now", "17-02-2017 15:10");
+        context.putVariable("today", "17-02-2017");
         
         assertThat(m_evaluator.evaluateExpression("true", context), is((Object) true));
         assertThat(m_evaluator.evaluateExpression("FALSE", context), is((Object) false));
@@ -89,6 +91,12 @@ public class EvaluatorTest {
         assertThat(m_evaluator.evaluateExpression("FIXED(1234.5678)", context), is((Object) "1,234.57"));
         assertThat(m_evaluator.evaluateExpression("FIXED(1234.5678, 1)", context), is((Object) "1,234.6"));
         assertThat(m_evaluator.evaluateExpression("FIXED(1234.5678, 1, True)", context), is((Object) "1234.6"));
+
+        // check comparisons
+        assertThat(m_evaluator.evaluateExpression("foo > bar", context), is((Object) true));
+        assertThat(m_evaluator.evaluateExpression("foo < bar", context), is((Object) false));
+        assertThat(m_evaluator.evaluateExpression("now > (today - 1)", context), is((Object) true));
+        assertThat(m_evaluator.evaluateExpression("now < (today - 1)", context), is((Object) false));
     }
 
     @Test

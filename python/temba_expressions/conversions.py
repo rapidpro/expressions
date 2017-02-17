@@ -174,7 +174,12 @@ def to_same(value1, value2, ctx):
 
     try:
         # try converting to two dates
-        return to_date_or_datetime(value1, ctx), to_date_or_datetime(value2, ctx)
+        d1, d2 = to_date_or_datetime(value1, ctx), to_date_or_datetime(value2, ctx)
+
+        # if either one is a datetime, then the other needs to become a datetime
+        if type(value1) != type(value2):
+            d1, d2 = to_datetime(d1, ctx), to_datetime(d2, ctx)
+        return d1, d2
     except EvaluationError:
         pass
 
