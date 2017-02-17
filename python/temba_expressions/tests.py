@@ -300,6 +300,8 @@ class EvaluatorTest(unittest.TestCase):
         context = EvaluationContext()
         context.put_variable("foo", 5)
         context.put_variable("bar", 3)
+        context.put_variable("now", "17-02-2017 15:10")
+        context.put_variable("today", "17-02-2017")
 
         self.assertEqual(self.evaluator.evaluate_expression("true", context), True)
         self.assertEqual(self.evaluator.evaluate_expression("FALSE", context), False)
@@ -341,6 +343,12 @@ class EvaluatorTest(unittest.TestCase):
         self.assertEqual(self.evaluator.evaluate_expression("FIXED(1234.5678)", context), "1,234.57")
         self.assertEqual(self.evaluator.evaluate_expression("FIXED(1234.5678, 1)", context), "1,234.6")
         self.assertEqual(self.evaluator.evaluate_expression("FIXED(1234.5678, 1, True)", context), "1234.6")
+
+        # check comparisons
+        self.assertEqual(self.evaluator.evaluate_expression("foo > bar", context), True)
+        self.assertEqual(self.evaluator.evaluate_expression("foo < bar", context), False)
+        self.assertEqual(self.evaluator.evaluate_expression("now > (today - 1)", context), True)
+        self.assertEqual(self.evaluator.evaluate_expression("now < (today - 1)", context), False)
 
         
 class FunctionsTest(unittest.TestCase):
