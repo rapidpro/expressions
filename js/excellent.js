@@ -46,8 +46,12 @@
      * which may be a function name or a context reference.
      */
     excellent.Parser.prototype.autoCompleteContext = function(partialExpression) {
-        if (this.isInStringLiteral(partialExpression)) {
-            return null;
+
+        var currentExpression = this.expressionContext(partialExpression);
+        if (currentExpression && currentExpression.match(/[(]*[^"]*["]/)) {
+            if (this.isInStringLiteral(partialExpression)) {
+                return null;
+            }
         }
 
         var fragment = "";
