@@ -1,37 +1,38 @@
-# Generated from Excellent.g4 by ANTLR 4.5.1
+# Generated from Excellent.g4 by ANTLR 4.7
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
+import sys
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write(u"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3")
+        buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3")
         buf.write(u"\30D\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\3\2\3\2\3\2\3\3")
-        buf.write(u"\3\3\3\3\3\3\3\3\3\3\5\3\24\n\3\3\3\3\3\3\3\3\3\3\3\3")
+        buf.write(u"\3\3\3\3\3\3\5\3\22\n\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3")
         buf.write(u"\3\3\3\3\3\3\3\3\3\3\3\5\3!\n\3\3\3\3\3\3\3\3\3\3\3\3")
         buf.write(u"\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\7")
         buf.write(u"\3\65\n\3\f\3\16\38\13\3\3\4\3\4\3\5\3\5\3\5\7\5?\n\5")
         buf.write(u"\f\5\16\5B\13\5\3\5\2\3\4\6\2\4\6\b\2\7\3\2\b\t\3\2\6")
-        buf.write(u"\7\3\2\r\20\3\2\13\f\3\2\24\26N\2\n\3\2\2\2\4 \3\2\2")
-        buf.write(u"\2\69\3\2\2\2\b;\3\2\2\2\n\13\5\4\3\2\13\f\7\2\2\3\f")
-        buf.write(u"\3\3\2\2\2\r\16\b\3\1\2\16\17\7\7\2\2\17!\5\4\3\17\20")
-        buf.write(u"\21\5\6\4\2\21\23\7\4\2\2\22\24\5\b\5\2\23\22\3\2\2\2")
-        buf.write(u"\23\24\3\2\2\2\24\25\3\2\2\2\25\26\7\5\2\2\26!\3\2\2")
-        buf.write(u"\2\27!\7\23\2\2\30!\7\22\2\2\31!\7\24\2\2\32!\7\25\2")
-        buf.write(u"\2\33!\7\26\2\2\34\35\7\4\2\2\35\36\5\4\3\2\36\37\7\5")
-        buf.write(u"\2\2\37!\3\2\2\2 \r\3\2\2\2 \20\3\2\2\2 \27\3\2\2\2 ")
-        buf.write(u"\30\3\2\2\2 \31\3\2\2\2 \32\3\2\2\2 \33\3\2\2\2 \34\3")
-        buf.write(u"\2\2\2!\66\3\2\2\2\"#\f\16\2\2#$\7\n\2\2$\65\5\4\3\17")
-        buf.write(u"%&\f\r\2\2&\'\t\2\2\2\'\65\5\4\3\16()\f\f\2\2)*\t\3\2")
-        buf.write(u"\2*\65\5\4\3\r+,\f\13\2\2,-\t\4\2\2-\65\5\4\3\f./\f\n")
-        buf.write(u"\2\2/\60\t\5\2\2\60\65\5\4\3\13\61\62\f\t\2\2\62\63\7")
-        buf.write(u"\21\2\2\63\65\5\4\3\n\64\"\3\2\2\2\64%\3\2\2\2\64(\3")
-        buf.write(u"\2\2\2\64+\3\2\2\2\64.\3\2\2\2\64\61\3\2\2\2\658\3\2")
-        buf.write(u"\2\2\66\64\3\2\2\2\66\67\3\2\2\2\67\5\3\2\2\28\66\3\2")
-        buf.write(u"\2\29:\t\6\2\2:\7\3\2\2\2;@\5\4\3\2<=\7\3\2\2=?\5\4\3")
-        buf.write(u"\2><\3\2\2\2?B\3\2\2\2@>\3\2\2\2@A\3\2\2\2A\t\3\2\2\2")
-        buf.write(u"B@\3\2\2\2\7\23 \64\66@")
+        buf.write(u"\7\3\2\r\20\3\2\13\f\3\2\24\26\2N\2\n\3\2\2\2\4 \3\2")
+        buf.write(u"\2\2\69\3\2\2\2\b;\3\2\2\2\n\13\5\4\3\2\13\f\7\2\2\3")
+        buf.write(u"\f\3\3\2\2\2\r\16\b\3\1\2\16\17\5\6\4\2\17\21\7\4\2\2")
+        buf.write(u"\20\22\5\b\5\2\21\20\3\2\2\2\21\22\3\2\2\2\22\23\3\2")
+        buf.write(u"\2\2\23\24\7\5\2\2\24!\3\2\2\2\25\26\7\7\2\2\26!\5\4")
+        buf.write(u"\3\17\27!\7\23\2\2\30!\7\22\2\2\31!\7\24\2\2\32!\7\25")
+        buf.write(u"\2\2\33!\7\26\2\2\34\35\7\4\2\2\35\36\5\4\3\2\36\37\7")
+        buf.write(u"\5\2\2\37!\3\2\2\2 \r\3\2\2\2 \25\3\2\2\2 \27\3\2\2\2")
+        buf.write(u" \30\3\2\2\2 \31\3\2\2\2 \32\3\2\2\2 \33\3\2\2\2 \34")
+        buf.write(u"\3\2\2\2!\66\3\2\2\2\"#\f\16\2\2#$\7\n\2\2$\65\5\4\3")
+        buf.write(u"\17%&\f\r\2\2&\'\t\2\2\2\'\65\5\4\3\16()\f\f\2\2)*\t")
+        buf.write(u"\3\2\2*\65\5\4\3\r+,\f\13\2\2,-\t\4\2\2-\65\5\4\3\f.")
+        buf.write(u"/\f\n\2\2/\60\t\5\2\2\60\65\5\4\3\13\61\62\f\t\2\2\62")
+        buf.write(u"\63\7\21\2\2\63\65\5\4\3\n\64\"\3\2\2\2\64%\3\2\2\2\64")
+        buf.write(u"(\3\2\2\2\64+\3\2\2\2\64.\3\2\2\2\64\61\3\2\2\2\658\3")
+        buf.write(u"\2\2\2\66\64\3\2\2\2\66\67\3\2\2\2\67\5\3\2\2\28\66\3")
+        buf.write(u"\2\2\29:\t\6\2\2:\7\3\2\2\2;@\5\4\3\2<=\7\3\2\2=?\5\4")
+        buf.write(u"\3\2><\3\2\2\2?B\3\2\2\2@>\3\2\2\2@A\3\2\2\2A\t\3\2\2")
+        buf.write(u"\2B@\3\2\2\2\7\21 \64\66@")
         return buf.getvalue()
 
 
@@ -86,9 +87,9 @@ class ExcellentParser ( Parser ):
     WS=21
     ERROR=22
 
-    def __init__(self, input):
-        super(ExcellentParser, self).__init__(input)
-        self.checkVersion("4.5.1")
+    def __init__(self, input, output=sys.stdout):
+        super(ExcellentParser, self).__init__(input, output=output)
+        self.checkVersion("4.7")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -452,35 +453,37 @@ class ExcellentParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 30
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,1,self._ctx)
             if la_ == 1:
-                localctx = ExcellentParser.NegationContext(self, localctx)
+                localctx = ExcellentParser.FunctionCallContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
 
                 self.state = 12
-                self.match(ExcellentParser.MINUS)
-                self.state = 13
-                self.expression(13)
-                pass
-
-            elif la_ == 2:
-                localctx = ExcellentParser.FunctionCallContext(self, localctx)
-                self._ctx = localctx
-                _prevctx = localctx
-                self.state = 14
                 self.fnname()
-                self.state = 15
+                self.state = 13
                 self.match(ExcellentParser.LPAREN)
-                self.state = 17
+                self.state = 15
+                self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ExcellentParser.LPAREN) | (1 << ExcellentParser.MINUS) | (1 << ExcellentParser.DECIMAL) | (1 << ExcellentParser.STRING) | (1 << ExcellentParser.TRUE) | (1 << ExcellentParser.FALSE) | (1 << ExcellentParser.NAME))) != 0):
-                    self.state = 16
+                    self.state = 14
                     self.parameters()
 
 
-                self.state = 19
+                self.state = 17
                 self.match(ExcellentParser.RPAREN)
+                pass
+
+            elif la_ == 2:
+                localctx = ExcellentParser.NegationContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+                self.state = 19
+                self.match(ExcellentParser.MINUS)
+                self.state = 20
+                self.expression(13)
                 pass
 
             elif la_ == 3:
@@ -546,6 +549,7 @@ class ExcellentParser ( Parser ):
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 50
+                    self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
                     if la_ == 1:
                         localctx = ExcellentParser.ExponentExpressionContext(self, ExcellentParser.ExpressionContext(self, _parentctx, _parentState))
@@ -572,6 +576,7 @@ class ExcellentParser ( Parser ):
                         if not(_la==ExcellentParser.TIMES or _la==ExcellentParser.DIVIDE):
                             self._errHandler.recoverInline(self)
                         else:
+                            self._errHandler.reportMatch(self)
                             self.consume()
                         self.state = 37
                         self.expression(12)
@@ -589,6 +594,7 @@ class ExcellentParser ( Parser ):
                         if not(_la==ExcellentParser.PLUS or _la==ExcellentParser.MINUS):
                             self._errHandler.recoverInline(self)
                         else:
+                            self._errHandler.reportMatch(self)
                             self.consume()
                         self.state = 40
                         self.expression(11)
@@ -606,6 +612,7 @@ class ExcellentParser ( Parser ):
                         if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ExcellentParser.LTE) | (1 << ExcellentParser.LT) | (1 << ExcellentParser.GTE) | (1 << ExcellentParser.GT))) != 0)):
                             self._errHandler.recoverInline(self)
                         else:
+                            self._errHandler.reportMatch(self)
                             self.consume()
                         self.state = 43
                         self.expression(10)
@@ -623,6 +630,7 @@ class ExcellentParser ( Parser ):
                         if not(_la==ExcellentParser.EQ or _la==ExcellentParser.NEQ):
                             self._errHandler.recoverInline(self)
                         else:
+                            self._errHandler.reportMatch(self)
                             self.consume()
                         self.state = 46
                         self.expression(9)
@@ -693,6 +701,7 @@ class ExcellentParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ExcellentParser.TRUE) | (1 << ExcellentParser.FALSE) | (1 << ExcellentParser.NAME))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
