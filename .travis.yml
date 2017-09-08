@@ -10,7 +10,7 @@ install:
 script:
 - cd python && nosetests --with-coverage --cover-erase --cover-package=temba_expressions && cd ..
 - cd java && mvn clean test && cd ..
-- cd js && karma start --browsers PhantomJS && cd ..
+- cd js && node_modules/karma/bin/karma start --browsers PhantomJS && cd ..
 after_success:
 - cp python/.coverage ./
 - coveralls

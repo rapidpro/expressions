@@ -4,13 +4,12 @@
   "repository": "git@github.com:rapidpro/expressions.git",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "jasmine-core": "2.4.1",
-    "karma": "0.13.19",
-    "karma-chrome-launcher": "0.2.2",
-    "karma-phantomjs-launcher": "1.0.0",
-    "karma-coverage": "0.5.3",
+    "jasmine-core": "2.8.0",
+    "karma": "1.7.1",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-phantomjs-launcher": "1.0.4",
+    "karma-coverage": "1.1.1",
     "karma-coveralls": "1.1.2",
-    "karma-jasmine": "0.3.7",
-    "karma-cli": "0.1.2"
+    "karma-jasmine": "1.1.0"
   }
 }
