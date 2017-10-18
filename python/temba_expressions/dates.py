@@ -4,6 +4,7 @@ import datetime
 import pkg_resources
 import pytz
 import regex
+import iso8601
 
 from collections import OrderedDict
 from enum import Enum
@@ -102,6 +103,17 @@ class DateParser(object):
         """
         if text is None or not text.strip():
             return None
+
+        # first try to parse as an ISO8601 date, if it doesn't work we'll try other options
+        if len(text) >= 10:
+            try:
+                parsed = iso8601.parse_date(text, default_timezone=None)
+                if not parsed.tzinfo:
+                    parsed = self._timezone.localize(parsed)
+
+                return parsed
+            except iso8601.ParseError:
+                pass
 
         # split the text into numerical and text tokens
         tokens = regex.findall(r'([0-9]+|[^\W\d]+)', text, flags=regex.MULTILINE | regex.UNICODE | regex.V0)

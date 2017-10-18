@@ -44,7 +44,10 @@ public class DateParserTest {
                 {"2034-02-01T14:55:41.060422", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, tz)},
                 {"2034-02-01T14:55:41.060Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60000000, ZoneOffset.UTC)},
                 {"2034-02-01T14:55:41.060422Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422000, ZoneOffset.UTC)},
-                {"2034-02-01T14:55:41.060422123Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422123, ZoneOffset.UTC)}
+                {"2034-02-01T14:55:41.060422123Z", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422123, ZoneOffset.UTC)},
+
+                // with timezone (we retain the timezone)
+                {"2034-02-01T14:55:41.060422123+02:00", ZonedDateTime.of(2034, 2, 1, 14, 55, 41, 60422123, ZoneOffset.of("+0200"))},
         };
         for (Object[] test : tests) {
             assertThat("Parse error for " + test[0], parser.auto((String) test[0]), is(test[1]));

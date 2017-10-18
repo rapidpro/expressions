@@ -56,10 +56,14 @@ class DateParserTest(unittest.TestCase):
             ("2034-02-01T14:55:41.060422", tz.localize(datetime(2034, 2, 1, 14, 55, 41, 60422))),
             ("2034-02-01T14:55:41.060Z", datetime(2034, 2, 1, 14, 55, 41, 60000, pytz.UTC)),
             ("2034-02-01T14:55:41.060422Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC)),
-            ("2034-02-01T14:55:41.060422123Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC))
+            ("2034-02-01T14:55:41.060422123Z", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.UTC)),
+
+            # with timezone (we retain the timezone)
+            ("2034-02-01T14:55:41.060422123+02:00", datetime(2034, 2, 1, 14, 55, 41, 60422, pytz.FixedOffset(120)))
         )
         for test in tests:
-            self.assertEqual(parser.auto(test[0]), test[1], "Parser error for %s" % test[0])
+            parsed = parser.auto(test[0])
+            self.assertEqual(parsed, test[1], "error parsing: %s  %s != %s" % (test[0], parsed, test[1]))
 
     def test_time(self):
         tz = pytz.timezone('Africa/Kigali')
@@ -195,6 +199,9 @@ class ConversionsTest(unittest.TestCase):
         tz = pytz.timezone("Africa/Kigali")
 
         self.assertEqual(conversions.to_datetime("14th Aug 2015 09:12", self.context), tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)))
+
+        self.assertEqual(conversions.to_datetime("2034-02-01T14:55:41.123456+03:00", self.context),
+                         tz.localize(datetime(2034, 2, 1, 13, 55, 41, 123456)))
 
         self.assertEqual(conversions.to_datetime(date(2015, 8, 14), self.context), tz.localize(datetime(2015, 8, 14, 0, 0, 0, 0)))
 
