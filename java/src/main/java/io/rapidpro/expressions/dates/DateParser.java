@@ -124,7 +124,7 @@ public class DateParser {
         }
 
         // try to parse the date as an ISO8601 date
-        if (text.length() >= 8) {
+        if (text.length() >= 16) {
             try {
                 return OffsetDateTime.parse(text).toZonedDateTime();
             } catch(Exception e) {}

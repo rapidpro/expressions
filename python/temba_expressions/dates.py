@@ -105,7 +105,7 @@ class DateParser(object):
             return None
 
         # first try to parse as an ISO8601 date, if it doesn't work we'll try other options
-        if len(text) >= 10:
+        if len(text) >= 16:
             try:
                 parsed = iso8601.parse_date(text, default_timezone=None)
                 if not parsed.tzinfo:

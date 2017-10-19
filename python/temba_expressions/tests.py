@@ -671,6 +671,10 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual('واحد إثنان', custom.word_slice(self.context, ' واحد إثنان ثلاثة ', 1, 3))
         self.assertRaises(ValueError, custom.word_slice, self.context, ' abc  def ghi-jkl ', 0)  # start can't be zero
 
+        self.assertEqual("01-02-2034 16:55", custom.format_date(self.context, "2034-02-01T14:55:41.060422123Z"))
+        self.assertEqual("01-02-2034 16:55", custom.format_date(self.context, "01-02-2034 16:55"))
+        self.assertRaises(EvaluationError, custom.format_date, self.context, 'not date')
+
 
 class TemplateTest(unittest.TestCase):
 

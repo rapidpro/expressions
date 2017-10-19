@@ -1,14 +1,19 @@
 package io.rapidpro.expressions.functions;
 
 import io.rapidpro.expressions.EvaluationContext;
+import io.rapidpro.expressions.EvaluationError;
+import io.rapidpro.expressions.dates.DateStyle;
 import org.junit.Before;
 import org.junit.Test;
+import org.threeten.bp.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 
 import static io.rapidpro.expressions.functions.CustomFunctions.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link CustomFunctions}
@@ -117,6 +122,17 @@ public class CustomFunctionsTest {
         assertThat(word_slice(m_context, " abc  def ghi-jkl ", -1, 0, false), is("jkl"));
         assertThat(word_slice(m_context, " abc  def ghi-jkl ", 2, -1, true), is("def"));
         assertThat(word_slice(m_context, "واحد اثنين ثلاثة", 1, 3, false), is("واحد اثنين"));
+    }
+
+    @Test
+    public void test_format_date() {
+        EvaluationContext context = new EvaluationContext(new HashMap<String,Object>(), ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST);
+        assertThat(format_date(context, "2034-02-01T14:55:41.060422123Z"), is("01-02-2034 16:55"));
+        assertThat(format_date(context, "01-02-2034 16:55"), is("01-02-2034 16:55"));
+        try {
+            format_date(context, "not date");
+            fail("Expected parsing error");
+        } catch (EvaluationError e){}
     }
 
     @Test(expected = RuntimeException.class)
