@@ -134,9 +134,6 @@ def word_slice(ctx, text, start, stop=0, by_spaces=False):
 def format_date(ctx, text):
     """
     Takes a single parameter (date as string) and returns it in the format defined by the org
-    :param ctx:
-    :param text:
-    :return:
     """
     dt = conversions.to_datetime(text, ctx)
     return dt.astimezone(ctx.timezone).strftime(ctx.get_date_format(True))
