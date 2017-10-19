@@ -131,6 +131,14 @@ def word_slice(ctx, text, start, stop=0, by_spaces=False):
     return ' '.join(selection)
 
 
+def format_date(ctx, text):
+    """
+    Takes a single parameter (date as string) and returns it in the format defined by the org
+    """
+    dt = conversions.to_datetime(text, ctx)
+    return dt.astimezone(ctx.timezone).strftime(ctx.get_date_format(True))
+
+
 #################################### Helper (not available in expressions) ####################################
 
 def __get_words(text, by_spaces):
