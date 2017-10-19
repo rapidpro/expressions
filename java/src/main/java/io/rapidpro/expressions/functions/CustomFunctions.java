@@ -151,10 +151,7 @@ public class CustomFunctions {
      * Formats a date according to the default org format
      */
     public static String format_date(EvaluationContext ctx, Object text) {
-        ZonedDateTime _dt = Conversions.toDateTime(text, ctx);
-        System.out.println("datetime: " + _dt);
-        _dt = Conversions.toDateTime(text, ctx).withZoneSameInstant(ctx.getTimezone());
-        System.out.println("datetime: " + _dt);
+        ZonedDateTime _dt = Conversions.toDateTime(text, ctx).withZoneSameInstant(ctx.getTimezone());
         return ctx.getDateFormatter(true).format(_dt);
     }
 
