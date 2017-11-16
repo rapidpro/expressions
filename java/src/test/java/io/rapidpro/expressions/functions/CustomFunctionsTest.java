@@ -135,6 +135,13 @@ public class CustomFunctionsTest {
         } catch (EvaluationError e){}
     }
 
+    public void test_format_location() {
+        EvaluationContext context = new EvaluationContext(new HashMap<String,Object>(), ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST);
+        assertThat(format_location(context, "Rwanda > Kigali > Kimihurura"), is("Kimihurura"));
+        assertThat(format_location(context, "Rwanda > Kigali"), is("Kigali"));
+        assertThat(format_location(context, "Rwanda"), is("Rwanda"));
+    }
+
     @Test(expected = RuntimeException.class)
     public void test_word_slice_zeroStart() {
         word_slice(m_context, " abc  def ghi-jkl ", 0, 0, false);  // start can't be zero

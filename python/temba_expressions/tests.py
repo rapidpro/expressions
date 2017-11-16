@@ -675,6 +675,10 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual("01-02-2034 16:55", custom.format_date(self.context, "01-02-2034 16:55"))
         self.assertRaises(EvaluationError, custom.format_date, self.context, 'not date')
 
+        self.assertEqual("Kimihurura", custom.format_location(self.context, "Rwanda > Kigali > Kimihurura"))
+        self.assertEqual("Kigali", custom.format_location(self.context, "Rwanda > Kigali"))
+        self.assertEqual("Rwanda", custom.format_location(self.context, "Rwanda"))
+
 
 class TemplateTest(unittest.TestCase):
 

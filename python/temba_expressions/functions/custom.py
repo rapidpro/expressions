@@ -139,6 +139,13 @@ def format_date(ctx, text):
     return dt.astimezone(ctx.timezone).strftime(ctx.get_date_format(True))
 
 
+def format_location(ctx, text):
+    """
+    Takes a single parameter (administrative boundary as a string) and returns the name of the leaf boundary
+    """
+    return text.split(">")[-1].strip()
+
+
 #################################### Helper (not available in expressions) ####################################
 
 def __get_words(text, by_spaces):
