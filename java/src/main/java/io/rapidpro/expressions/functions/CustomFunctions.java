@@ -155,6 +155,15 @@ public class CustomFunctions {
         return ctx.getDateFormatter(true).format(_dt);
     }
 
+    /**
+     * Takes a single parameter (administrative boundary as a string) and returns the name of the leaf boundary
+     */
+    public static String format_location(EvaluationContext ctx, Object text) {
+        String _text = Conversions.toString(text, ctx);
+        String[] splits = _text.split(">");
+        return splits[splits.length - 1].trim();
+    }
+
     /************************************************************************************
      * Helper (not available in expressions)
      ************************************************************************************/
