@@ -274,8 +274,10 @@ class DateParser(object):
                 second = values.get(Component.SECOND, 0)
                 nano = values.get(Component.NANO, 0)
 
-                if hour <= 12 and values.get(Component.AM_PM, cls.AM) == cls.PM:
+                if hour < 12 and values.get(Component.AM_PM) == cls.PM:
                     hour += 12
+                elif hour == 12 and values.get(Component.AM_PM) == cls.AM:
+                    hour -= 12
 
             try:
                 time = datetime.time(hour, minute, second, microsecond=nano // 1000)

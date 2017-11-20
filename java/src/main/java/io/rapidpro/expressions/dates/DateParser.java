@@ -330,9 +330,12 @@ public class DateParser {
                 second = ExpressionUtils.getOrDefault(values, Component.SECOND, 0);
                 nano = ExpressionUtils.getOrDefault(values, Component.NANO, 0);
 
-                if (hour <= 12 && ExpressionUtils.getOrDefault(values, Component.AM_PM, AM) == PM) {
+                if (hour < 12 && ExpressionUtils.getOrDefault(values, Component.AM_PM, AM) == PM) {
                     hour += 12;
+                } else if (hour == 12 && ExpressionUtils.getOrDefault(values, Component.AM_PM, PM) == AM) {
+                    hour -= 12;
                 }
+
             }
 
             try {
