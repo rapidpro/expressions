@@ -6,6 +6,7 @@ import io.rapidpro.expressions.functions.annotations.BooleanDefault;
 import io.rapidpro.expressions.functions.annotations.IntegerDefault;
 import io.rapidpro.expressions.functions.annotations.StringDefault;
 import io.rapidpro.expressions.utils.ExpressionUtils;
+import org.threeten.bp.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -144,6 +145,23 @@ public class CustomFunctions {
 
         // re-combine selected words with a single space
         return StringUtils.join(selection, ' ');
+    }
+
+    /**
+     * Formats a date according to the default org format
+     */
+    public static String format_date(EvaluationContext ctx, Object text) {
+        ZonedDateTime _dt = Conversions.toDateTime(text, ctx).withZoneSameInstant(ctx.getTimezone());
+        return ctx.getDateFormatter(true).format(_dt);
+    }
+
+    /**
+     * Takes a single parameter (administrative boundary as a string) and returns the name of the leaf boundary
+     */
+    public static String format_location(EvaluationContext ctx, Object text) {
+        String _text = Conversions.toString(text, ctx);
+        String[] splits = _text.split(">");
+        return splits[splits.length - 1].trim();
     }
 
     /************************************************************************************

@@ -123,6 +123,13 @@ public class DateParser {
             return null;
         }
 
+        // try to parse the date as an ISO8601 date
+        if (text.length() >= 16) {
+            try {
+                return OffsetDateTime.parse(text).toZonedDateTime();
+            } catch(Exception e) {}
+        }
+
         // split the text into numerical and text tokens
         Pattern pattern = Pattern.compile("([0-9]+|\\p{L}+)");
         Matcher matcher = pattern.matcher(text);
