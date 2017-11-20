@@ -80,7 +80,11 @@ class DateParserTest(unittest.TestCase):
             ("14.55", time(14, 55, 0)),
             ("1455h", time(14, 55, 0)),
             ("14:55:30", time(14, 55, 30)),
-            ("14:55.30PM", time(14, 55, 30))
+            ("14:55.30PM", time(14, 55, 30)),
+            ("12:30 AM", time(0, 30, 0)),
+            ("12:30 PM", time(12, 30, 0)),
+            ("11:30 AM", time(11, 30, 0)),
+            ("11:30 PM", time(23, 30, 0)),
         )
         for test in tests:
             self.assertEqual(parser.time(test[0]), test[1], "Parser error for %s" % test[0])

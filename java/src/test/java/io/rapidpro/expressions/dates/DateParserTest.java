@@ -71,7 +71,11 @@ public class DateParserTest {
                 { "14.55", OffsetTime.of(14, 55, 0, 0, ZoneOffset.ofHours(2)) },
                 { "1455h", OffsetTime.of(14, 55, 0, 0, ZoneOffset.ofHours(2)) },
                 { "14:55:30", OffsetTime.of(14, 55, 30, 0, ZoneOffset.ofHours(2)) },
-                { "14:55.30PM", OffsetTime.of(14, 55, 30, 0, ZoneOffset.ofHours(2)) }
+                { "14:55.30PM", OffsetTime.of(14, 55, 30, 0, ZoneOffset.ofHours(2)) },
+                { "12:30 AM", OffsetTime.of(0, 30, 0, 0, ZoneOffset.ofHours(2)) },
+                { "12:30 PM", OffsetTime.of(12, 30, 0, 0, ZoneOffset.ofHours(2)) },
+                { "11:30 AM", OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(2)) },
+                { "11:30 PM", OffsetTime.of(23, 30, 0, 0, ZoneOffset.ofHours(2)) },
         };
 
         for (Object[] test : tests) {
