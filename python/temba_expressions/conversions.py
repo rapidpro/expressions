@@ -89,7 +89,7 @@ def to_string(value, ctx):
     elif isinstance(value, datetime.time):
         return value.strftime('%H:%M')
     elif isinstance(value, datetime.datetime):
-        return value.astimezone(ctx.timezone).strftime(ctx.get_date_format(True))
+        return value.astimezone(ctx.timezone).isoformat()
 
     raise EvaluationError("Can't convert '%s' to a string" % six.text_type(value))
 

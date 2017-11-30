@@ -106,7 +106,7 @@
     "template": "@(contact.joined + 1) @(contact.joined - 3)",
     "context": {"variables": {"contact": {"joined": "01-12-2014 09:00"}}, "timezone": "Africa/Kigali", "date_style": "day_first"},
     "url_encode": false,
-    "output": "02-12-2014 09:00 28-11-2014 09:00",
+    "output": "2014-12-02T09:00:00+02:00 2014-11-28T09:00:00+02:00",
     "errors": []
   },
   { /* date constructor +/- integer */
@@ -120,14 +120,14 @@
     "template": "@(contact.joined + TIME(2, 30, 0)) @(contact.joined - TIME(2, 30, 0))",
     "context": {"variables": {"contact": {"joined": "01-12-2014 09:00"}}, "timezone": "Africa/Kigali", "date_style": "day_first"},
     "url_encode": false,
-    "output": "01-12-2014 11:30 01-12-2014 06:30",
+    "output": "2014-12-01T11:30:00+02:00 2014-12-01T06:30:00+02:00",
     "errors": []
   },
   { /* date var +/- time */
     "template": "@(contact.joined + TIME(2, 30, 0)) @(contact.joined - TIME(2, 30, 0))",
     "context": {"variables": {"contact": {"joined": "01-12-2014"}}, "timezone": "Africa/Kigali", "date_style": "day_first"},
     "url_encode": false,
-    "output": "01-12-2014 02:30 30-11-2014 21:30",
+    "output": "2014-12-01T02:30:00+02:00 2014-11-30T21:30:00+02:00",
     "errors": []
   },
 
@@ -413,7 +413,7 @@
     "template": "@(NOW())",
     "context": {"variables": {}, "timezone": "Africa/Kigali", "date_style": "day_first", "now": "2014-10-03T09:41:12.790Z"},
     "url_encode": false,
-    "output": "03-10-2014 11:41",
+    "output": "2014-10-03T11:41:12.790000+02:00",
     "errors": []
   },
   {

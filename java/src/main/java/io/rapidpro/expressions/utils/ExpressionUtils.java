@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
@@ -20,6 +21,8 @@ public final class ExpressionUtils {
 
     private ExpressionUtils() {}
 
+    protected static DateTimeFormatter ISO_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx");
+    protected static DateTimeFormatter ISO_DATETIME_FORMAT_NO_SECOND_FRACTION = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx");
     protected static DateTimeFormatter JSON_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
@@ -142,6 +145,22 @@ public final class ExpressionUtils {
         }
 
         return list.toArray(new String[list.size()]);
+    }
+
+    /**
+     * Formats a date time as ISO8601 with microsecond precision and offset, e.g. "2014-10-03T09:41:12.790123+02:00"
+     */
+    public static String formatIsoDate(ZonedDateTime value) {
+        if (value == null) {
+            return null;
+        }
+
+        // to match the format we get from Python's .isoformat(), we don't include second fraction if it's zero
+        if (value.getNano() == 0) {
+            return ISO_DATETIME_FORMAT_NO_SECOND_FRACTION.format(value);
+        }
+
+        return ISO_DATETIME_FORMAT.format(value);
     }
 
     /**

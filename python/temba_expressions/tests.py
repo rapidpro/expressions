@@ -179,12 +179,12 @@ class ConversionsTest(unittest.TestCase):
 
         self.assertEqual(conversions.to_string(date(2012, 3, 4), self.context), "04-03-2012")
         self.assertEqual(conversions.to_string(time(12, 34, 0), self.context), "12:34")
-        self.assertEqual(conversions.to_string(self.tz.localize(datetime(2012, 3, 4, 5, 6, 7, 8)), self.context), "04-03-2012 05:06")
+        self.assertEqual(conversions.to_string(self.tz.localize(datetime(2012, 3, 4, 5, 6, 7, 8)), self.context), "2012-03-04T05:06:07.000008+02:00")
 
         self.context.date_style = DateStyle.MONTH_FIRST
 
         self.assertEqual(conversions.to_string(date(2012, 3, 4), self.context), "03-04-2012")
-        self.assertEqual(conversions.to_string(self.tz.localize(datetime(2012, 3, 4, 5, 6, 7, 8)), self.context), "03-04-2012 05:06")
+        self.assertEqual(conversions.to_string(self.tz.localize(datetime(2012, 3, 4, 5, 6, 7, 8)), self.context), "2012-03-04T05:06:07.000008+02:00")
 
     def test_to_date(self):
         self.assertEqual(conversions.to_date("14th Aug 2015", self.context), date(2015, 8, 14))
@@ -230,7 +230,7 @@ class ConversionsTest(unittest.TestCase):
 
         self.assertEqual(conversions.to_repr(time(9, 12, 0), self.context), '"09:12"')
 
-        self.assertEqual(conversions.to_repr(self.tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)), self.context), '"14-08-2015 09:12"')
+        self.assertEqual(conversions.to_repr(self.tz.localize(datetime(2015, 8, 14, 9, 12, 0, 0)), self.context), '"2015-08-14T09:12:00+02:00"')
 
 
 class EvaluationContextTest(unittest.TestCase):

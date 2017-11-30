@@ -53,6 +53,16 @@ public class ExpressionUtilsTest {
     }
 
     @Test
+    public void _formatIsoDate() {
+        ZonedDateTime val1 = ZonedDateTime.of(2014, 10, 3, 1, 41, 12, 790000000, ZoneOffset.UTC);
+        ZonedDateTime val2 = ZonedDateTime.of(2014, 10, 3, 1, 41, 12, 0, ZoneOffset.UTC);
+
+        assertThat(formatIsoDate(null), is(nullValue()));
+        assertThat(formatIsoDate(val1), is("2014-10-03T01:41:12.790000+00:00"));
+        assertThat(formatIsoDate(val2), is("2014-10-03T01:41:12+00:00"));  // doesn't include microseconds if zero
+    }
+
+    @Test
     public void _parseJsonDate() {
         Instant val = ZonedDateTime.of(2014, 10, 3, 1, 41, 12, 790000000, ZoneOffset.UTC).toInstant();
 

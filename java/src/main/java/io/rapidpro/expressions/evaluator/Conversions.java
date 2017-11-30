@@ -2,6 +2,7 @@ package io.rapidpro.expressions.evaluator;
 
 import io.rapidpro.expressions.EvaluationContext;
 import io.rapidpro.expressions.EvaluationError;
+import io.rapidpro.expressions.utils.ExpressionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.threeten.bp.LocalDate;
@@ -122,7 +123,7 @@ public class Conversions {
         }
         else if (value instanceof ZonedDateTime) {
             ZonedDateTime inZone = ((ZonedDateTime) value).withZoneSameInstant(ctx.getTimezone());
-            return ctx.getDateFormatter(true).format(inZone);
+            return ExpressionUtils.formatIsoDate(inZone);
         }
 
         throw new EvaluationError("Can't convert '" + value + "' to a string");

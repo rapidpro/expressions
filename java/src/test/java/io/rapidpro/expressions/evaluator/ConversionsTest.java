@@ -111,12 +111,12 @@ public class ConversionsTest {
 
         assertThat(Conversions.toString(LocalDate.of(2012, 3, 4), m_context), is("04-03-2012"));
         assertThat(Conversions.toString(OffsetTime.of(12, 34, 0, 0, ZoneOffset.ofHours(2)), m_context), is("12:34"));
-        assertThat(Conversions.toString(ZonedDateTime.of(2012, 3, 4, 5, 6, 7, 8, ZoneId.of("Africa/Kigali")), m_context), is("04-03-2012 05:06"));
+        assertThat(Conversions.toString(ZonedDateTime.of(2012, 3, 4, 5, 6, 7, 8, ZoneId.of("Africa/Kigali")), m_context), is("2012-03-04T05:06:07.000000+02:00"));
 
         m_context.setDateStyle(DateStyle.MONTH_FIRST);
 
         assertThat(Conversions.toString(LocalDate.of(2012, 3, 4), m_context), is("03-04-2012"));
-        assertThat(Conversions.toString(ZonedDateTime.of(2012, 3, 4, 5, 6, 7, 8, ZoneId.of("Africa/Kigali")), m_context), is("03-04-2012 05:06"));
+        assertThat(Conversions.toString(ZonedDateTime.of(2012, 3, 4, 5, 6, 7, 8, ZoneId.of("Africa/Kigali")), m_context), is("2012-03-04T05:06:07.000000+02:00"));
     }
 
     @Test
@@ -165,6 +165,6 @@ public class ConversionsTest {
 
         assertThat(Conversions.toRepr(OffsetTime.of(9, 12, 0, 0, ZoneOffset.ofHours(2)), m_context), is("\"09:12\""));
 
-        assertThat(Conversions.toRepr(ZonedDateTime.of(2015, 8, 14, 9, 12, 0, 0, ZoneId.of("Africa/Kigali")), m_context), is("\"14-08-2015 09:12\""));
+        assertThat(Conversions.toRepr(ZonedDateTime.of(2015, 8, 14, 9, 12, 0, 0, ZoneId.of("Africa/Kigali")), m_context), is("\"2015-08-14T09:12:00+02:00\""));
     }
 }
