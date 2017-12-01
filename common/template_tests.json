@@ -333,6 +333,20 @@
     "errors": []
   },
   {
+    "template": "@(FORMAT_DATE(contact.joined)) @(FORMAT_DATE(contact.left))",
+    "context": {"variables": {"contact": {"joined": "2017-11-30T08:59:12.1234567+02:00", "left": "30-11-2017"}}, "timezone": "Africa/Kigali", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "30-11-2017 08:59 30-11-2017 00:00",
+    "errors": []
+  },
+  {
+    "template": "@(FORMAT_LOCATION(contact.state)) @(FORMAT_LOCATION(contact.district))",
+    "context": {"variables": {"contact": {"state": "Kigali", "district": "Kigali > Gasabo"}}, "timezone": "Africa/Kigali", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "Kigali Gasabo",
+    "errors": []
+  },
+  {
     "template": "@(HOUR(\"10-9-2015 13:45:23\")) @(HOUR(\"Sep 9th 2:30PM\"))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
