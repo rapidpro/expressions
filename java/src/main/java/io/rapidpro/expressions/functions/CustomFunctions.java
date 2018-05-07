@@ -10,9 +10,10 @@ import org.threeten.bp.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Library of supported custom functions.
@@ -162,6 +163,32 @@ public class CustomFunctions {
         String _text = Conversions.toString(text, ctx);
         String[] splits = _text.split(">");
         return splits[splits.length - 1].trim();
+    }
+
+    /**
+     * Tries to match the text with the given pattern and returns the value of matching group
+     */
+    public static String regex_group(EvaluationContext ctx, Object text, Object pattern, Object groupNum) {
+        String _text = Conversions.toString(text, ctx);
+        String _pattern = Conversions.toString(pattern, ctx);
+        int _groupNum = Conversions.toInteger(groupNum, ctx);
+
+        try {
+            // check whether we match
+            int flags = ExpressionUtils.getPatternUnicodeFlag() | Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
+            Pattern regex = Pattern.compile(_pattern, flags);
+            Matcher matcher = regex.matcher(_text);
+
+            if (matcher.find()) {
+                if (_groupNum < 0 || _groupNum > matcher.groupCount()) {
+                    throw new RuntimeException("No such matching group " + _groupNum);
+                }
+
+                return matcher.group(_groupNum);
+            }
+        } catch (PatternSyntaxException ignored) {}
+
+        return "";
     }
 
     /************************************************************************************

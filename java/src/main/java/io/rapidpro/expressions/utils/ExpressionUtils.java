@@ -9,10 +9,12 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Utility methods
@@ -213,5 +215,18 @@ public final class ExpressionUtils {
             || (ch >= 0x0001F600 && ch <= 0x0001F64F)  // Emoticons
             || (ch >= 0x0001F680 && ch <= 0x0001F6FF)  // Transport and Map Symbols
             || (ch >= 0x0001F900 && ch <= 0x0001F9FF); // Supplemental Symbols and Pictographs
+    }
+
+    /**
+     * Gets the value of UNICODE_CHARACTER_CLASS if it exists (Java SE) or zero if it's implied and isn't defined (Android)
+     * @return the field value or zero
+     */
+    public static int getPatternUnicodeFlag() {
+        try {
+            Field field = Pattern.class.getField("UNICODE_CHARACTER_CLASS");
+            return field.getInt(null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            return 0;
+        }
     }
 }
