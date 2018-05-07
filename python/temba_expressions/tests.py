@@ -683,6 +683,11 @@ class FunctionsTest(unittest.TestCase):
         self.assertEqual("Kigali", custom.format_location(self.context, "Rwanda > Kigali"))
         self.assertEqual("Rwanda", custom.format_location(self.context, "Rwanda"))
 
+        self.assertEqual("Isaac Newton", custom.regex_group(self.context, "Isaac Newton", '(\w+) (\w+)', 0))
+        self.assertEqual("Isaac", custom.regex_group(self.context, "Isaac Newton", '(\w+) (\w+)', 1))
+        self.assertEqual("Newton", custom.regex_group(self.context, "Isaac Newton", '(\w+) (\w+)', "2"))
+        self.assertRaises(ValueError, custom.regex_group, self.context, "Isaac Newton", '(\w+) (\w+)', 5)
+
 
 class TemplateTest(unittest.TestCase):
 

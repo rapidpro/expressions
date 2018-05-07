@@ -124,6 +124,11 @@ public class CustomFunctionsTest {
         assertThat(word_slice(m_context, "واحد اثنين ثلاثة", 1, 3, false), is("واحد اثنين"));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void test_word_slice_zeroStart() {
+        word_slice(m_context, " abc  def ghi-jkl ", 0, 0, false);  // start can't be zero
+    }
+
     @Test
     public void test_format_date() {
         EvaluationContext context = new EvaluationContext(new HashMap<String,Object>(), ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST);
@@ -135,6 +140,7 @@ public class CustomFunctionsTest {
         } catch (EvaluationError e){}
     }
 
+    @Test
     public void test_format_location() {
         EvaluationContext context = new EvaluationContext(new HashMap<String,Object>(), ZoneId.of("Africa/Kigali"), DateStyle.DAY_FIRST);
         assertThat(format_location(context, "Rwanda > Kigali > Kimihurura"), is("Kimihurura"));
@@ -142,8 +148,10 @@ public class CustomFunctionsTest {
         assertThat(format_location(context, "Rwanda"), is("Rwanda"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test_word_slice_zeroStart() {
-        word_slice(m_context, " abc  def ghi-jkl ", 0, 0, false);  // start can't be zero
+    @Test
+    public void test_regex_group() {
+        assertThat(regex_group(m_context, "Isaac Newton", "(\\w+) (\\w+)", 0), is("Isaac Newton"));
+        assertThat(regex_group(m_context, "Isaac Newton", "(\\w+) (\\w+)", 1), is("Isaac"));
+        assertThat(regex_group(m_context, "Isaac Newton", "(\\w+) (\\w+)", "2"), is("Newton"));
     }
 }
