@@ -508,7 +508,7 @@
     "errors": []
   },
   {
-    "template": "@(REGEX_GROUP(\"Isaac Newton\", \"(?P<first_name>\\w+) (\\w+)\", 1))|@(REGEX_GROUP(\"Isaac Newton\", \"(?P<first_name>\\w+) (\\w+)\", 2))",
+    "template": "@(REGEX_GROUP(\"Isaac Newton\", \"(\\w+) (\\w+)\", 1))|@(REGEX_GROUP(\"Isaac Newton\", \"(\\w+) (\\w+)\", 2))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
     "output": "Isaac|Newton",
