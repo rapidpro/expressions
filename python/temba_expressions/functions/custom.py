@@ -143,7 +143,28 @@ def format_location(ctx, text):
     """
     Takes a single parameter (administrative boundary as a string) and returns the name of the leaf boundary
     """
+    text = conversions.to_string(text, ctx)
     return text.split(">")[-1].strip()
+
+
+def regex_group(ctx, text, pattern, group_num):
+    """
+    Tries to match the text with the given pattern and returns the value of matching group
+    """
+    text = conversions.to_string(text, ctx)
+    pattern = conversions.to_string(pattern, ctx)
+    group_num = conversions.to_integer(group_num, ctx)
+
+    expression = regex.compile(pattern, regex.UNICODE | regex.IGNORECASE | regex.MULTILINE | regex.V0)
+    match = expression.search(text)
+
+    if not match:
+        return ""
+
+    if group_num < 0 or group_num > len(match.groups()):
+        raise ValueError("No such matching group %d" % group_num)
+
+    return match.group(group_num)
 
 
 #################################### Helper (not available in expressions) ####################################
