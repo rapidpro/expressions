@@ -175,7 +175,7 @@ public class CustomFunctions {
 
         try {
             // check whether we match
-            int flags = ExpressionUtils.getPatternUnicodeFlag() | Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
+            int flags = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
             Pattern regex = Pattern.compile(_pattern, flags);
             Matcher matcher = regex.matcher(_text);
 
