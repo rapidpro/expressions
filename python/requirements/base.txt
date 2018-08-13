@@ -1,8 +1,5 @@
-antlr4-python2-runtime; python_version < '3.0'
-antlr4-python3-runtime; python_version >= '3.0'
-enum34
+antlr4-python3-runtime
 python-dateutil
 pytz
 regex
-six
 iso8601

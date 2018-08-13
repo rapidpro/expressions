@@ -1,7 +1,4 @@
-from __future__ import absolute_import, unicode_literals
-
 import inspect
-import six
 
 
 class FunctionManager(object):
@@ -15,7 +12,7 @@ class FunctionManager(object):
         :param library: the library module
         :return:
         """
-        for fn in six.itervalues(library.__dict__.copy()):
+        for fn in library.__dict__.copy().values():
             # ignore imported methods and anything beginning __
             if inspect.isfunction(fn) and inspect.getmodule(fn) == library and not fn.__name__.startswith('__'):
                 name = fn.__name__.lower()
@@ -72,13 +69,13 @@ class FunctionManager(object):
         except Exception as e:
             pretty_args = []
             for arg in arguments:
-                if isinstance(arg, six.string_types):
+                if isinstance(arg, str):
                     pretty = '"%s"' % arg
                 else:
                     try:
                         pretty = conversions.to_string(arg, ctx)
                     except EvaluationError:
-                        pretty = six.text_type(arg)
+                        pretty = str(arg)
                 pretty_args.append(pretty)
 
             raise EvaluationError("Error calling function %s with arguments %s" % (name, ', '.join(pretty_args)), e)
@@ -91,17 +88,17 @@ class FunctionManager(object):
             args, varargs, defaults = self._get_arg_spec(func)
 
             # add regular arguments
-            params = [{'name': six.text_type(a), 'optional': a in defaults, 'vararg': False} for a in args if a != 'ctx']
+            params = [{'name': str(a), 'optional': a in defaults, 'vararg': False} for a in args if a != 'ctx']
 
             # add possible variable argument
             if varargs:
-                params += [{'name': six.text_type(varargs), 'optional': False, 'vararg': True}]
+                params += [{'name': str(varargs), 'optional': False, 'vararg': True}]
 
-            return {'name': six.text_type(name.upper()),
-                    'description': six.text_type(func.__doc__).strip(),
+            return {'name': str(name.upper()),
+                    'description': str(func.__doc__).strip(),
                     'params': params}
 
-        listing = [func_entry(f_name, f) for f_name, f in six.iteritems(self._functions)]
+        listing = [func_entry(f_name, f) for f_name, f in self._functions.items()]
         return sorted(listing, key=lambda l: l['name'])
 
     @staticmethod

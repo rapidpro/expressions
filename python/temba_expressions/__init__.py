@@ -1,6 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
-
 class EvaluationError(Exception):
     """
     Exception class for errors during template/expression evaluation
