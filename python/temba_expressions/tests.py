@@ -1,11 +1,7 @@
-# coding=utf-8
-from __future__ import absolute_import, unicode_literals
-
 import codecs
 import json
 import pytz
 import regex
-import six
 import sys
 import unittest
 
@@ -146,9 +142,6 @@ class ConversionsTest(unittest.TestCase):
         self.assertEqual(conversions.to_integer("1234", self.context), 1234)
 
         self.assertRaises(EvaluationError, conversions.to_integer, 'x', self.context)
-
-        if six.PY2:
-            self.assertRaises(EvaluationError, conversions.to_integer, Decimal("12345678901234567890"), self.context)
 
     def test_to_decimal(self):
         self.assertEqual(conversions.to_decimal(True, self.context), Decimal(1))

@@ -1,10 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 import datetime
 import json
 import logging
 import pytz
-import six
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeVisitor, Token
 from antlr4.error.Errors import ParseCancellationException, NoViableAltException
@@ -71,7 +68,7 @@ class EvaluationContext(object):
             remaining_path = None
 
         # copy of container with all lowercase keys
-        container = {k.lower(): v for k, v in six.iteritems(container)}
+        container = {k.lower(): v for k, v in container.items()}
 
         if item not in container:
             raise EvaluationError("Undefined variable: %s" % original_path)
@@ -103,7 +100,7 @@ class EvaluationContext(object):
                 return value['__default__']
             else:
                 return json.dumps(value, separators=(',', ':'))  # return serialized JSON if no default
-        elif isinstance(value, float) or isinstance(value, six.integer_types):
+        elif isinstance(value, float) or isinstance(value, int):
             return Decimal(value)
         else:
             return value
@@ -255,10 +252,10 @@ class Evaluator(object):
 
             return urlquote(result) if url_encode else result
         except EvaluationError as e:
-            logger.debug("EvaluationError: %s" % six.text_type(e))
+            logger.debug("EvaluationError: %s" % str(e))
 
             # if we can't evaluate expression, include it as is in the output
-            errors.append(six.text_type(e))
+            errors.append(str(e))
             return expression
 
     def evaluate_expression(self, expression, context, strategy=EvaluationStrategy.COMPLETE):
@@ -444,7 +441,7 @@ class ExcellentVisitor(ParseTreeVisitor):
         """
         arg1, arg2 = conversions.to_same(self.visit(ctx.expression(0)), self.visit(ctx.expression(1)), self._eval_context)
 
-        if isinstance(arg1, six.string_types):
+        if isinstance(arg1, str):
             # string comparison is case-insensitive
             compared = (arg1.lower() > arg2.lower()) - (arg1.lower() < arg2.lower())
         else:
@@ -465,7 +462,7 @@ class ExcellentVisitor(ParseTreeVisitor):
         """
         arg1, arg2 = conversions.to_same(self.visit(ctx.expression(0)), self.visit(ctx.expression(1)), self._eval_context)
 
-        if isinstance(arg1, six.string_types):
+        if isinstance(arg1, str):
             # string equality is case-insensitive
             equal = arg1.lower() == arg2.lower()
         else:
