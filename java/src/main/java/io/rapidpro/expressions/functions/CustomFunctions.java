@@ -58,6 +58,14 @@ public class CustomFunctions {
     }
 
     /**
+     * Converts the given date to the number of nanoseconds since January 1st, 1970 UTC
+     */
+    public static BigDecimal to_epoch(EvaluationContext ctx, Object datetime) {
+        Instant instant = Conversions.toDateTime(datetime, ctx).toInstant();
+        return new BigDecimal(instant.getEpochSecond() * 1000000000 + instant.getNano());
+    }
+
+    /**
      * Formats digits in text for reading in TTS
      */
     public static String read_digits(EvaluationContext ctx, Object text) {

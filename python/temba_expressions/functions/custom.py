@@ -41,6 +41,13 @@ def percent(ctx, number):
     return '%d%%' % int(round(conversions.to_decimal(number, ctx) * 100))
 
 
+def to_epoch(ctx, datetime):
+    """
+    Converts the given date to the number of nanoseconds since January 1st, 1970 UTC
+    """
+    return int(conversions.to_datetime(datetime, ctx).timestamp() * 1000000000)
+
+
 def read_digits(ctx, text):
     """
     Formats digits in text for reading in TTS

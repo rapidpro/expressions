@@ -592,6 +592,13 @@
     "errors": []
   },
   {
+    "template": "@(TO_EPOCH(d1)) @(TO_EPOCH(d2)) @(TO_EPOCH(d2) / 1000000000)",
+    "context": {"variables": {"d1": "2017-06-12T16:56:59.123456Z", "d2": "2017-06-12T18:56:59.000000+02:00"}, "timezone": "UTC", "date_style": "day_first"},
+    "url_encode": false,
+    "output": "1497286619123456000 1497286619000000000 1497286619",
+    "errors": []
+  },
+  {
     "template": "@(TRUE())",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
