@@ -256,15 +256,11 @@ public class Conversions {
     }
 
     /**
-     * Formats a decimal number using the same precision as Excel
+     * Formats a decimal number
      * @param decimal the decimal value
      * @return the formatted string value
      */
     private static String formatDecimal(BigDecimal decimal) {
-        decimal = decimal.stripTrailingZeros();
-        int intDigits = decimal.precision() - decimal.scale();  // number of non-fractional digits
-        int fractionalDigits = Math.min(Math.max(10 - intDigits, 0), decimal.scale());
-        decimal = decimal.setScale(fractionalDigits, RoundingMode.HALF_UP);
-        return decimal.toPlainString();
+        return decimal.stripTrailingZeros().toPlainString();
     }
 }

@@ -66,7 +66,7 @@ public class EvaluatorTest {
         assertThat(m_evaluator.evaluateExpression("1.3 + 2.2", context), is((Object) new BigDecimal("3.5")));
         assertThat(m_evaluator.evaluateExpression("1.3 - 2.2", context), is((Object) new BigDecimal("-0.9")));
         assertThat(m_evaluator.evaluateExpression("4 * 2", context), is((Object) new BigDecimal(8)));
-        assertThat(m_evaluator.evaluateExpression("4 / 2", context), is((Object) new BigDecimal("2.0000000000")));
+        assertThat(m_evaluator.evaluateExpression("4 / 2", context), is((Object) new BigDecimal("2")));
         assertThat(m_evaluator.evaluateExpression("4 ^ 2", context), is((Object) new BigDecimal(16)));
         assertThat(m_evaluator.evaluateExpression("4 ^ 0.5", context), is((Object) new BigDecimal(2)));
         assertThat(m_evaluator.evaluateExpression("4 ^ -1", context), is((Object) new BigDecimal("0.25")));
@@ -75,7 +75,7 @@ public class EvaluatorTest {
         assertThat(m_evaluator.evaluateExpression("2 & 3 & 4", context), is((Object) "234"));
 
         // check precedence
-        assertThat(m_evaluator.evaluateExpression("2 + 3 / 4 - 5 * 6", context), is((Object) new BigDecimal("-27.2500000000")));
+        assertThat(m_evaluator.evaluateExpression("2 + 3 / 4 - 5 * 6", context), is((Object) new BigDecimal("-27.25")));
         assertThat(m_evaluator.evaluateExpression("2 & 3 + 4 & 5", context), is((Object) "275"));
 
         // check associativity

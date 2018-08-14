@@ -1,6 +1,8 @@
 import operator
 import regex
 
+from decimal import Decimal
+
 from temba_expressions import conversions
 from temba_expressions.utils import tokenize
 
@@ -39,11 +41,11 @@ def percent(ctx, number):
     return '%d%%' % int(round(conversions.to_decimal(number, ctx) * 100))
 
 
-def to_epoch(ctx, datetime):
+def epoch(ctx, datetime):
     """
-    Converts the given date to the number of nanoseconds since January 1st, 1970 UTC
+    Converts the given date to the number of seconds since January 1st, 1970 UTC
     """
-    return int(conversions.to_datetime(datetime, ctx).timestamp() * 1000000000)
+    return conversions.to_decimal(str(conversions.to_datetime(datetime, ctx).timestamp()), ctx)
 
 
 def read_digits(ctx, text):

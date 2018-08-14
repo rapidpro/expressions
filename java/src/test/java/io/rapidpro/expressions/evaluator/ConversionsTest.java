@@ -102,10 +102,12 @@ public class ConversionsTest {
         assertThat(Conversions.toString(-1, m_context), is("-1"));
         assertThat(Conversions.toString(1234567890, m_context), is("1234567890"));
 
+        assertThat(Conversions.toString(new BigDecimal("2.0"), m_context), is("2"));
+        assertThat(Conversions.toString(new BigDecimal("1234000"), m_context), is("1234000"));
         assertThat(Conversions.toString(new BigDecimal("0.4440000"), m_context), is("0.444"));
-        assertThat(Conversions.toString(new BigDecimal("1234567890.5"), m_context), is("1234567891"));
-        assertThat(Conversions.toString(new BigDecimal("33.333333333333"), m_context), is("33.33333333"));
-        assertThat(Conversions.toString(new BigDecimal("66.666666666666"), m_context), is("66.66666667"));
+        assertThat(Conversions.toString(new BigDecimal("1234567890.50"), m_context), is("1234567890.5"));
+        assertThat(Conversions.toString(new BigDecimal("33.333333333333"), m_context), is("33.333333333333"));
+        assertThat(Conversions.toString(new BigDecimal("66.666666666666"), m_context), is("66.666666666666"));
 
         assertThat(Conversions.toString("hello", m_context), is("hello"));
 

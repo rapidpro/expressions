@@ -89,7 +89,7 @@
     "template": "@(100 / 3) @(2 * 100 / 3)",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "33.33333333 66.66666667",
+    "output": "33.33333333333333333333333333 66.66666666666666666666666667",
     "errors": []
   },
 
@@ -301,7 +301,7 @@
     "template": "@(EXP(2))",
     "context": {"variables": {}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "7.389056099",
+    "output": "7.389056098930649518763402739",
     "errors": []
   },
   {
@@ -592,10 +592,10 @@
     "errors": []
   },
   {
-    "template": "@(TO_EPOCH(d1)) @(TO_EPOCH(d2)) @(TO_EPOCH(d2) / 1000000000)",
+    "template": "@(EPOCH(d1)) @(EPOCH(d2)) @(INT(EPOCH(d1)))",
     "context": {"variables": {"d1": "2017-06-12T16:56:59.123456Z", "d2": "2017-06-12T18:56:59.000000+02:00"}, "timezone": "UTC", "date_style": "day_first"},
     "url_encode": false,
-    "output": "1497286619123456000 1497286619000000000 1497286619",
+    "output": "1497286619.123456 1497286619 1497286619",
     "errors": []
   },
   {

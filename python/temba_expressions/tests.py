@@ -163,10 +163,12 @@ class ConversionsTest(unittest.TestCase):
         self.assertEqual(conversions.to_string(-1, self.context), "-1")
         self.assertEqual(conversions.to_string(1234567890, self.context), "1234567890")
 
+        self.assertEqual(conversions.to_string(Decimal("2.0"), self.context), "2")
+        self.assertEqual(conversions.to_string(Decimal("1234000"), self.context), "1234000")
         self.assertEqual(conversions.to_string(Decimal("0.4440000"), self.context), "0.444")
-        self.assertEqual(conversions.to_string(Decimal("1234567890.5"), self.context), "1234567891")
-        self.assertEqual(conversions.to_string(Decimal("33.333333333333"), self.context), "33.33333333")
-        self.assertEqual(conversions.to_string(Decimal("66.666666666666"), self.context), "66.66666667")
+        self.assertEqual(conversions.to_string(Decimal("1234567890.50"), self.context), "1234567890.5")
+        self.assertEqual(conversions.to_string(Decimal("33.333333333333"), self.context), "33.333333333333")
+        self.assertEqual(conversions.to_string(Decimal("66.666666666666"), self.context), "66.666666666666")
 
         self.assertEqual(conversions.to_string("hello", self.context), "hello")
 
