@@ -1,6 +1,6 @@
 import datetime
 
-from decimal import Decimal, getcontext, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from . import EvaluationError
 
 
@@ -199,22 +199,14 @@ def to_repr(value, ctx):
 
 def format_decimal(decimal):
     """
-    Formats a decimal number using the same precision as Excel
+    Formats a decimal number
     :param decimal: the decimal value
     :return: the formatted string value
     """
-    getcontext().rounding = ROUND_HALF_UP
-
-    # strip trailing zeros
+    # strip trailing fractional zeros
     normalized = decimal.normalize()
     sign, digits, exponent = normalized.as_tuple()
     if exponent >= 1:
         normalized = normalized.quantize(1)
-        sign, digits, exponent = normalized.as_tuple()
-
-    int_digits = len(digits) + exponent
-    fractional_digits = min(max(10 - int_digits, 0), -exponent)
-
-    normalized = normalized.quantize(Decimal(10) ** -fractional_digits)
 
     return str(normalized)

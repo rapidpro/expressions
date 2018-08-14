@@ -11,6 +11,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.*;
@@ -26,6 +27,11 @@ public final class ExpressionUtils {
     protected static DateTimeFormatter ISO_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx");
     protected static DateTimeFormatter ISO_DATETIME_FORMAT_NO_SECOND_FRACTION = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx");
     protected static DateTimeFormatter JSON_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+    /**
+     * A math context which match the defaults of Python's Decimal
+     */
+    public static MathContext MATH = new MathContext(28, RoundingMode.HALF_EVEN);
 
     /**
      * Slices a list, Python style
@@ -63,7 +69,7 @@ public final class ExpressionUtils {
      * Pow for two decimals
      */
     public static BigDecimal decimalPow(BigDecimal number, BigDecimal power) {
-        return new BigDecimal(Math.pow(number.doubleValue(), power.doubleValue()));
+        return new BigDecimal(Math.pow(number.doubleValue(), power.doubleValue()), MATH);
     }
 
     /**

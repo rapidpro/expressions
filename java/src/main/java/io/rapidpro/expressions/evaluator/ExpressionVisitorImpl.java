@@ -15,6 +15,7 @@ import org.threeten.bp.temporal.Temporal;
 import org.threeten.bp.temporal.TemporalAmount;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,7 +98,7 @@ public class ExpressionVisitorImpl extends ExcellentBaseVisitor<Object> {
             throw new EvaluationError("Division by zero");
         }
 
-        return multiplication ? arg1.multiply(arg2) : arg1.divide(arg2, 10, RoundingMode.HALF_UP);
+        return multiplication ? arg1.multiply(arg2, ExpressionUtils.MATH) : arg1.divide(arg2, ExpressionUtils.MATH);
     }
 
     /**
@@ -113,7 +114,7 @@ public class ExpressionVisitorImpl extends ExcellentBaseVisitor<Object> {
         try {
             BigDecimal _arg1 = Conversions.toDecimal(arg1, m_evalContext);
             BigDecimal _arg2 = Conversions.toDecimal(arg2, m_evalContext);
-            return add ? _arg1.add(_arg2) : _arg1.subtract(_arg2);
+            return add ? _arg1.add(_arg2, ExpressionUtils.MATH) : _arg1.subtract(_arg2, ExpressionUtils.MATH);
         } catch (EvaluationError ignored) {}
 
         // then as date + something
