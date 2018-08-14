@@ -1,5 +1,4 @@
 ```
-pip install pypandoc
 pip install wheel
 rm -R dist/
 python setup.py sdist
