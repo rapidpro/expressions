@@ -1,7 +1,6 @@
 import datetime
 import math
 import pytz
-import sys
 import regex
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -9,21 +8,8 @@ from six.moves.urllib.parse import quote
 
 JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-WORD_TOKEN_REGEX = r"\w+"  # any word characters
-WORD_TOKEN_REGEX += r"|[\u20A0-\u20CF]"  # Currency symbols
-WORD_TOKEN_REGEX += r"|[\u2600-\u27BF]"  # Miscellaneous symbols
-
-if sys.maxunicode > 65535:
-    WORD_TOKEN_REGEX += r"|[\U0001F300-\U0001F5FF]"  # Miscellaneous Symbols and Pictographs
-    WORD_TOKEN_REGEX += r"|[\U0001F600-\U0001F64F]"  # Emoticons
-    WORD_TOKEN_REGEX += r"|[\U0001F680-\U0001F6FF]"  # Transport and Map Symbols
-    WORD_TOKEN_REGEX += r"|[\U0001F900-\U0001F9FF]"  # Supplemental Symbols and Pictographs
-
-else:
-    WORD_TOKEN_REGEX += r"|\uD83C[\uDF00-\uDFFF]"  # Miscellaneous Symbols and Pictographs, Emoticons
-    WORD_TOKEN_REGEX += r"|\uD83D[\uDC00-\uDE4F]"  # Miscellaneous Symbols and Pictographs, Emoticons
-    WORD_TOKEN_REGEX += r"|\uD83D[\uDE80-\uDEFF]"  # Transport and Map Symbols
-    WORD_TOKEN_REGEX += r"|\uD83E[\uDD00-\uDDFF]"  # Supplemental Symbols and Pictographs
+# treats sequences of letters/numbers/_/' as tokens, and symbols as individual tokens
+WORD_TOKEN_REGEX = regex.compile(r"[\p{L}\p{N}_']+|\pS", flags=regex.UNICODE | regex.V0)
 
 
 def decimal_pow(number, power):
@@ -58,7 +44,7 @@ def tokenize(text):
     """
     Tokenizes a string by splitting on non-word characters.
     """
-    return regex.findall(WORD_TOKEN_REGEX, text, flags=regex.UNICODE | regex.V0)
+    return WORD_TOKEN_REGEX.findall(text)
 
 
 def parse_json_date(value):
