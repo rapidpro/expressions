@@ -9,13 +9,11 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Utility methods
@@ -133,7 +131,7 @@ public final class ExpressionUtils {
             char ch = text.charAt(i);
             int ch32 = text.codePointAt(i);
 
-            if (isEmojiChar(ch32)) {
+            if (isSymbolChar(ch32)) {
                 list.add(new String(Character.toChars(ch32)));
                 i += Character.isHighSurrogate(ch) ? 2 : 1;
                 continue;
@@ -208,18 +206,15 @@ public final class ExpressionUtils {
      * Returns whether the given character is a word character (\w in a regex)
      */
     static boolean isWordChar(int ch) {
-        return Character.isLetterOrDigit(ch) || ch == '_';
+        return Character.isLetterOrDigit(ch) || ch == '_' || ch == '\'';
     }
 
     /**
-     * Returns whether the given character is a Unicode emoji
+     * Returns whether the given character is a Unicode symbol
      */
-    static boolean isEmojiChar(int ch) {
-        return (ch >= 0x20A0 && ch <= 0x20CF)          // Currency symbols
-            || (ch >= 0x2600 && ch <= 0x27BF)          // Miscellaneous symbols
-            || (ch >= 0x0001F300 && ch <= 0x0001F5FF)  // Miscellaneous Symbols and Pictographs
-            || (ch >= 0x0001F600 && ch <= 0x0001F64F)  // Emoticons
-            || (ch >= 0x0001F680 && ch <= 0x0001F6FF)  // Transport and Map Symbols
-            || (ch >= 0x0001F900 && ch <= 0x0001F9FF); // Supplemental Symbols and Pictographs
+    static boolean isSymbolChar(int ch) {
+        int t = Character.getType(ch);
+        System.out.println(new String(Character.toChars(ch)) + " == " + t);
+        return t == Character.MATH_SYMBOL || t == Character.CURRENCY_SYMBOL || t == Character.MODIFIER_SYMBOL || t == Character.OTHER_SYMBOL;
     }
 }

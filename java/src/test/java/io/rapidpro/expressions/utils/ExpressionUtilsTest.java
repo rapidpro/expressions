@@ -1,6 +1,5 @@
 package io.rapidpro.expressions.utils;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
@@ -41,15 +40,17 @@ public class ExpressionUtilsTest {
 
     @Test
     public void _tokenize() {
-        assertThat(tokenize("this is a sentence"), arrayContaining("this", "is", "a", "sentence"));
-        assertThat(tokenize("  hey  \t@ there  "), arrayContaining("hey", "there"));
-        assertThat(tokenize("واحد اثنين ثلاثة"), arrayContaining("واحد", "اثنين", "ثلاثة"));
-        assertThat(tokenize(""), Matchers.<String>emptyArray());
-        assertThat(tokenize("\n @ ."), Matchers.<String>emptyArray());
-        assertThat(tokenize("we win @game and we \uD83D\uDE4C"),
-                arrayContaining("we", "win", "game", "and", "we", "\uD83D\uDE4C"));
-        assertThat(tokenize("we win @game and we \uD83D\uDE4C\uD83D\uDE00 \uD83D\uDE81"),
-                arrayContaining("we", "win", "game", "and", "we", "\uD83D\uDE4C", "\uD83D\uDE00", "\uD83D\uDE81"));
+        assertThat(tokenize(" one "), arrayContaining("one"));
+        assertThat(tokenize("one   two three"), arrayContaining("one", "two", "three"));
+        assertThat(tokenize("one.two.three"), arrayContaining("one", "two", "three"));
+        assertThat(tokenize("O'Grady can't foo_bar"), arrayContaining("O'Grady", "can't", "foo_bar"));          // single quotes and underscores don't split tokens
+        assertThat(tokenize("öne.βήταa.thé"), arrayContaining("öne", "βήταa", "thé"));                              // non-latin letters allowed in tokens
+        assertThat(tokenize("واحد اثنين ثلاثة"), arrayContaining("واحد", "اثنين", "ثلاثة"));                           // RTL scripts
+        assertThat(tokenize("  \t\none(two!*@three "), arrayContaining("one", "two", "three"));                      // other punctuation ignored
+        assertThat(tokenize("spend$£€₠₣₪"), arrayContaining("spend", "$", "£", "€", "₠", "₣", "₪"));                 // currency symbols treated as individual tokens
+        assertThat(tokenize("math+=×÷√∊"), arrayContaining("math", "+", "=", "×", "÷", "√", "∊"));                  // math symbols treated as individual tokens
+        assertThat(tokenize("emoji😄🏥👪👰😟"), arrayContaining("emoji", "😄", "🏥", "👪", "👰", "😟"));  // emojis treated as individual tokens
+        assertThat(tokenize("ℹ︎ ℹ️"), arrayContaining("ℹ", "ℹ"));                                                    // variation selectors ignored
     }
 
     @Test
@@ -89,8 +90,8 @@ public class ExpressionUtilsTest {
 
     @Test
     public void _isEmojiChar() {
-        assertThat(isEmojiChar('x'), is(false));
-        assertThat(isEmojiChar('\u20A0'), is(true));
-        assertThat(isEmojiChar(0x0001F300), is(true));
+        assertThat(isSymbolChar('x'), is(false));
+        assertThat(isSymbolChar('\u20A0'), is(true));
+        assertThat(isSymbolChar(0x0001F300), is(true));
     }
 }
