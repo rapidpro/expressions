@@ -255,6 +255,7 @@ class EvaluationContextTest(unittest.TestCase):
         self.assertEqual(context.resolve_variable("contact.join_date_1"), "28-08-2015 13:06")
         self.assertEqual(context.resolve_variable("contact.isnull"), "")
         self.assertEqual(context.resolve_variable("contact.isbool"), True)
+        self.assertTrue(type(context.resolve_variable("contact.isbool")) == bool)
         self.assertEqual(context.resolve_variable("contact.isfloat"), Decimal('1.5'))
         self.assertEqual(context.resolve_variable("contact.isint"), Decimal('9223372036854775807'))
         self.assertEqual(context.resolve_variable("contact.isdict"), '{"a":123}')
