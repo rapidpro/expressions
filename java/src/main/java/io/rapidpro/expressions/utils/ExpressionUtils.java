@@ -214,7 +214,6 @@ public final class ExpressionUtils {
      */
     static boolean isSymbolChar(int ch) {
         int t = Character.getType(ch);
-        System.out.println(new String(Character.toChars(ch)) + " == " + t);
         return t == Character.MATH_SYMBOL || t == Character.CURRENCY_SYMBOL || t == Character.MODIFIER_SYMBOL || t == Character.OTHER_SYMBOL;
     }
 }
