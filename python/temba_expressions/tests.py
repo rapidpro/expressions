@@ -767,14 +767,18 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(decimal_pow(Decimal(2), Decimal(-2)), Decimal('0.25'))
 
     def test_tokenize(self):
-        self.assertEqual(tokenize("this is a sentence"), ["this", "is", "a", "sentence"])
-        self.assertEqual(tokenize("  hey  \t@ there  "), ["hey", "there"])
-        self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])
-        self.assertEqual(tokenize(""), [])
-        self.assertEqual(tokenize("\n @ ."), [])
-        self.assertEqual(tokenize("we win @game and we \U0001F64C"), ["we", "win", "game", "and", "we", "\U0001F64C"])
-        self.assertEqual(tokenize("we win @game and we \U0001F64C\U0001F600 \U0001F681"),
-                     ["we", "win", "game", "and", "we", "\U0001F64C", "\U0001F600", "\U0001F681"])
+        self.assertEqual(tokenize(" one "), ["one"])
+        self.assertEqual(tokenize("one   two three"), ["one", "two", "three"])
+        self.assertEqual(tokenize("one.two.three"), ["one", "two", "three"])
+        self.assertEqual(tokenize("O'Grady can't foo_bar"), ["O'Grady", "can't", "foo_bar"])               # single quotes and underscores don't split tokens
+        self.assertEqual(tokenize("öne.βήταa.thé"), ["öne", "βήταa", "thé"])                               # non-latin letters allowed in tokens
+        self.assertEqual(tokenize("واحد اثنين ثلاثة"), ["واحد", "اثنين", "ثلاثة"])                           # RTL scripts
+        self.assertEqual(tokenize("  \t\none(two!*@three "), ["one", "two", "three"])                      # other punctuation ignored
+        self.assertEqual(tokenize("spend$£€₠₣₪"), ["spend", "$", "£", "€", "₠", "₣", "₪"])                 # currency symbols treated as individual tokens
+        self.assertEqual(tokenize("math+=×÷√∊"), ["math", "+", "=", "×", "÷", "√", "∊"])                   # math symbols treated as individual tokens
+        self.assertEqual(tokenize("emoji😄🏥👪👰😟🧟"), ["emoji", "😄", "🏥", "👪", "👰", "😟", "🧟"])  # emojis treated as individual tokens
+        self.assertEqual(tokenize("👍🏿 👨🏼"), ["👍", "🏿", "👨", "🏼"])                                # tone modifiers treated as individual tokens
+        self.assertEqual(tokenize("ℹ︎ ℹ️"), ["ℹ", "ℹ"])                                                    # variation selectors ignored
 
     def test_parse_json_date(self):
         val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)
