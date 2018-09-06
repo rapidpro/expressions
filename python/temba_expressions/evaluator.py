@@ -100,6 +100,8 @@ class EvaluationContext(object):
                 return value['__default__']
             else:
                 return json.dumps(value, separators=(',', ':'))  # return serialized JSON if no default
+        elif isinstance(value, bool):
+            return value
         elif isinstance(value, float) or isinstance(value, int):
             return Decimal(value)
         else:
