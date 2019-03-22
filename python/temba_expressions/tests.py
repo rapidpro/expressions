@@ -692,6 +692,7 @@ class TemplateTest(unittest.TestCase):
 
         with codecs.open('test_files/template_tests.json', 'r', 'utf-8') as tests_file:
             tests_json = json_strip_comments(tests_file.read())
+            tests_json = tests_json.replace("CURRENT_YEAR", f"{datetime.now().year}")
             tests_json = json.loads(tests_json, parse_float=Decimal)
             tests = []
             for test_json in tests_json:
@@ -780,9 +781,9 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(tokenize("emoji😄🏥👪👰😟🧟"), ["emoji", "😄", "🏥", "👪", "👰", "😟", "🧟"])  # emojis treated as individual tokens
         self.assertEqual(tokenize("👍🏿 👨🏼"), ["👍", "🏿", "👨", "🏼"])                                # tone modifiers treated as individual tokens
         self.assertEqual(tokenize("ℹ ℹ️"), ["ℹ", "ℹ️"])                                                # variation selectors ignored
-        self.assertEqual(tokenize("ยกเลิก sasa"), ["ยกเลิก", "sasa"])
-        self.assertEqual(tokenize("বাতিল sasa"), ["বাতিল", "sasa"])
-        self.assertEqual(tokenize("ထွက်သွား sasa"), ["ထွက်သွား", "sasa"])
+        self.assertEqual(tokenize("ยกเลิก sasa"), ["ยกเลิก", "sasa"])                                       # Thai word means Cancelled
+        self.assertEqual(tokenize("বাতিল sasa"), ["বাতিল", "sasa"])                                         # Bangla word means Cancel
+        self.assertEqual(tokenize("ထွက်သွား sasa"), ["ထွက်သွား", "sasa"])                                    # Burmese word means exit
 
     def test_parse_json_date(self):
         val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)
