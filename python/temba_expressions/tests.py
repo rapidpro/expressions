@@ -779,7 +779,10 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(tokenize("math+=×÷√∊"), ["math", "+", "=", "×", "÷", "√", "∊"])                   # math symbols treated as individual tokens
         self.assertEqual(tokenize("emoji😄🏥👪👰😟🧟"), ["emoji", "😄", "🏥", "👪", "👰", "😟", "🧟"])  # emojis treated as individual tokens
         self.assertEqual(tokenize("👍🏿 👨🏼"), ["👍", "🏿", "👨", "🏼"])                                # tone modifiers treated as individual tokens
-        self.assertEqual(tokenize("ℹ︎ ℹ️"), ["ℹ", "ℹ"])                                                    # variation selectors ignored
+        self.assertEqual(tokenize("ℹ ℹ️"), ["ℹ", "ℹ️"])                                                # variation selectors ignored
+        self.assertEqual(tokenize("ยกเลิก sasa"), ["ยกเลิก", "sasa"])
+        self.assertEqual(tokenize("বাতিল sasa"), ["বাতিল", "sasa"])
+        self.assertEqual(tokenize("ထွက်သွား sasa"), ["ထွက်သွား", "sasa"])
 
     def test_parse_json_date(self):
         val = datetime(2014, 10, 3, 1, 41, 12, 790000, pytz.UTC)
