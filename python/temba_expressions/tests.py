@@ -692,7 +692,6 @@ class TemplateTest(unittest.TestCase):
 
         with codecs.open('test_files/template_tests.json', 'r', 'utf-8') as tests_file:
             tests_json = json_strip_comments(tests_file.read())
-            tests_json = tests_json.replace("CURRENT_YEAR", "%s" % datetime.now().year)
             tests_json = json.loads(tests_json, parse_float=Decimal)
             tests = []
             for test_json in tests_json:
