@@ -9,7 +9,7 @@ from six.moves.urllib.parse import quote
 JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 # treats sequences of letters/numbers/_/' as tokens, and symbols as individual tokens
-WORD_TOKEN_REGEX = regex.compile(r"[\p{L}\p{N}_']+|\pS", flags=regex.UNICODE | regex.V0)
+WORD_TOKEN_REGEX = regex.compile(r"[\p{M}\p{L}\p{N}_']+|\pS", flags=regex.UNICODE | regex.V0)
 
 
 def decimal_pow(number, power):
